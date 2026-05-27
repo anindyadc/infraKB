@@ -83,7 +83,7 @@ export default function DocViewPage() {
               </span>
               <div className="h-px flex-1 bg-gradient-to-r from-border/50 to-transparent" />
             </div>
-            <h1 className="text-5xl lg:text-6xl font-black tracking-tighter text-foreground leading-tight">
+            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-foreground leading-tight">
               {doc.title}
             </h1>
             
