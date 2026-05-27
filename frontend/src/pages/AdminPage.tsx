@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getStats } from '../api/stats.api';
-import { getUsers } from '../api/users.api';
-import { Users, Activity, BarChart3, ShieldCheck, Cpu, Database, Network, Server } from 'lucide-react';
+import { getUsers, updateUser, createUser, deleteUser } from '../api/users.api';
+import { Users, Activity, BarChart3, ShieldCheck, Cpu, Database, Network, Server, Plus, Edit2, Trash2, X, Check, Key } from 'lucide-react';
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'activity'>('stats');
@@ -45,7 +45,7 @@ export default function AdminPage() {
       <div className="flex-1 overflow-y-auto p-8 lg:p-12 scrollbar-thin scrollbar-thumb-primary/10">
         <div className="mx-auto max-w-7xl">
           {activeTab === 'stats' && <StatsDashboard />}
-          {activeTab === 'users' && <UserList />}
+          {activeTab === 'users' && <UserManagement />}
           {activeTab === 'activity' && <ActivityLog />}
         </div>
       </div>
@@ -148,59 +148,182 @@ function StatCard({ icon: Icon, label, value, color = 'text-foreground' }: any) 
   );
 }
 
-function UserList() {
+function UserManagement() {
+  const queryClient = useQueryClient();
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
+
   const { data, isLoading } = useQuery({
     queryKey: ['admin-users'],
     queryFn: () => getUsers({}),
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: any) => updateUser(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      setEditingUser(null);
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: createUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      setShowAddModal(false);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-users'] }),
+  });
+
   if (isLoading) return <div className="text-[10px] font-black uppercase tracking-widest opacity-30">Retrieving Operator Registry...</div>;
 
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-border/50 bg-card/40 shadow-2xl backdrop-blur-md">
-      <table className="w-full text-left text-sm">
-        <thead>
-          <tr className="border-b border-border/50 bg-muted/20">
-            <th className="px-8 py-5 font-black text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40">Registered Operator</th>
-            <th className="px-8 py-5 font-black text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40">Security Role</th>
-            <th className="px-8 py-5 font-black text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40">Node Status</th>
-            <th className="px-8 py-5 font-black text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40">Last Activity</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border/30">
-          {data.data.map((user: any) => (
-            <tr key={user.id} className="hover:bg-muted/30 transition-all group">
-              <td className="px-8 py-6">
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-xs text-primary font-black uppercase">
-                    {user.displayName?.charAt(0)}
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-black text-foreground uppercase tracking-tight group-hover:text-primary transition-colors">{user.displayName}</span>
-                    <span className="text-[10px] font-bold text-muted-foreground/50 lowercase">{user.email}</span>
-                  </div>
-                </div>
-              </td>
-              <td className="px-8 py-6">
-                <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${user.role === 'ADMIN' ? 'bg-purple-500/10 text-purple-500 border border-purple-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
-                  {user.role}
-                </span>
-              </td>
-              <td className="px-8 py-6">
-                <div className="flex items-center gap-2">
-                  <span className={`h-2 w-2 rounded-full ${user.isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-destructive opacity-50'}`} />
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${user.isActive ? 'text-foreground' : 'text-muted-foreground/30'}`}>
-                    {user.isActive ? 'Active' : 'Offline'}
-                  </span>
-                </div>
-              </td>
-              <td className="px-8 py-6 font-mono text-[10px] font-bold text-muted-foreground/40">
-                {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : 'SESSION_VOID'}
-              </td>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/40">Operator Registry</h3>
+        <button 
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          <span>Add Operator</span>
+        </button>
+      </div>
+
+      <div className="overflow-hidden rounded-[2rem] border border-border/50 bg-card/40 shadow-2xl backdrop-blur-md">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-border/50 bg-muted/20">
+              <th className="px-8 py-5 font-black text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40">Registered Operator</th>
+              <th className="px-8 py-5 font-black text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40">Security Role</th>
+              <th className="px-8 py-5 font-black text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40">Node Status</th>
+              <th className="px-8 py-5 font-black text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40 text-right">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-border/30">
+            {data.data.map((user: any) => (
+              <tr key={user.id} className="hover:bg-muted/30 transition-all group">
+                <td className="px-8 py-6">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-xs text-primary font-black uppercase">
+                      {user.displayName?.charAt(0)}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-black text-foreground uppercase tracking-tight group-hover:text-primary transition-colors">{user.displayName}</span>
+                      <span className="text-[10px] font-bold text-muted-foreground/50 lowercase">{user.email}</span>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-8 py-6">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${user.role === 'ADMIN' ? 'bg-purple-500/10 text-purple-500 border border-purple-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
+                    {user.role}
+                  </span>
+                </td>
+                <td className="px-8 py-6">
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2 w-2 rounded-full ${user.isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-destructive opacity-50'}`} />
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${user.isActive ? 'text-foreground' : 'text-muted-foreground/30'}`}>
+                      {user.isActive ? 'Active' : 'Offline'}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-8 py-6 text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <button 
+                      onClick={() => setEditingUser(user)}
+                      className="p-2 rounded-lg bg-muted/50 border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all"
+                    >
+                      <Edit2 className="h-3.5 w-3.5" />
+                    </button>
+                    <button 
+                      onClick={() => confirm('Disable operator?') && deleteMutation.mutate(user.id)}
+                      className="p-2 rounded-lg bg-muted/50 border border-border/50 text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-all"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* User Modal (Add/Edit) */}
+      {(showAddModal || editingUser) && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-md bg-card border border-border rounded-[2rem] p-10 shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-500">
+            <div className="flex justify-between items-center mb-8">
+               <h4 className="text-xl font-black uppercase tracking-tighter text-foreground">
+                 {showAddModal ? 'Register Operator' : 'Modify Credentials'}
+               </h4>
+               <button onClick={() => { setShowAddModal(false); setEditingUser(null); }} className="text-muted-foreground hover:text-foreground">
+                 <X className="h-5 w-5" />
+               </button>
+            </div>
+            
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const data = Object.fromEntries(formData.entries());
+              if (showAddModal) {
+                createMutation.mutate(data);
+              } else {
+                updateMutation.mutate({ id: editingUser.id, data });
+              }
+            }} className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Display Name</label>
+                  <input name="displayName" defaultValue={editingUser?.displayName} required className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all" />
+                </div>
+                
+                {showAddModal && (
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Username</label>
+                      <input name="username" required className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Work Email</label>
+                      <input name="email" type="email" required className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all" />
+                    </div>
+                  </>
+                )}
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                    {showAddModal ? 'Access Key / Password' : 'Reset Access Key (Optional)'}
+                  </label>
+                  <input name="password" type="password" required={showAddModal} placeholder={editingUser ? 'Leave blank to keep current' : ''} className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Security Role</label>
+                  <select name="role" defaultValue={editingUser?.role || 'VIEWER'} className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all appearance-none">
+                    <option value="VIEWER">VIEWER (Read Only)</option>
+                    <option value="EDITOR">EDITOR (Create/Edit)</option>
+                    <option value="ADMIN">ADMIN (Full Access)</option>
+                  </select>
+                </div>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={createMutation.isPending || updateMutation.isPending}
+                className="w-full rounded-xl bg-primary py-4 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
+              >
+                <Key className="h-3 w-3" />
+                <span>{showAddModal ? 'Initialize Account' : 'Commit Credentials'}</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

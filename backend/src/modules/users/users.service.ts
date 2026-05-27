@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { prisma } from '../../lib/prisma.js';
 
 export class UsersService {
@@ -43,9 +44,16 @@ export class UsersService {
   }
 
   static async update(id: number, data: any) {
+    const updateData = { ...data };
+    
+    if (data.password) {
+      updateData.passwordHash = await bcrypt.hash(data.password, 12);
+      delete updateData.password;
+    }
+
     return prisma.user.update({
       where: { id },
-      data,
+      data: updateData,
     });
   }
 

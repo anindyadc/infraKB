@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '../../api/categories.api';
 import { useAuthStore } from '../../store/auth.store';
 import { useUIStore } from '../../store/ui.store';
-import { LayoutGrid, Plus, LogOut, PanelLeftClose, HardDrive } from 'lucide-react';
+import { LayoutGrid, Plus, LogOut, PanelLeftClose, HardDrive, ShieldCheck } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import SearchBar from '../shared/SearchBar';
 import ThemeToggle from '../shared/ThemeToggle';
@@ -64,6 +64,12 @@ export default function Sidebar() {
               <span>Dashboard</span>
               <span className="ml-auto font-mono text-[9px] font-black bg-muted/50 px-1.5 py-0.5 rounded border border-border/50">01</span>
             </Link>
+            {user?.role === 'ADMIN' && (
+              <Link to="/admin" className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${isActive('/admin') ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}>
+                <ShieldCheck className="h-4 w-4" />
+                <span>System Admin</span>
+              </Link>
+            )}
           </nav>
         </div>
 
