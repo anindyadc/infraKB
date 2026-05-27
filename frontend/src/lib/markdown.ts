@@ -40,8 +40,8 @@ export const renderMarkdown = (content: string): string => {
         </div>
 
         <!-- Code Content Area -->
-        <pre class="scrollbar-thin scrollbar-thumb-white/10 p-7 overflow-x-auto text-[14px] leading-[1.7] text-zinc-100 selection:bg-primary/30">
-          <code class="hljs language-${validLanguage} font-mono">${highlighted}</code>
+        <pre class="scrollbar-thin scrollbar-thumb-white/10 overflow-x-auto text-[14px] leading-[1.7] text-zinc-100 selection:bg-primary/30 py-6">
+          <code class="hljs language-${validLanguage} font-mono inline-block min-w-full px-6">${highlighted}</code>
         </pre>
       </div>
     `;

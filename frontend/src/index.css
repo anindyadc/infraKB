@@ -130,11 +130,11 @@ code, pre, .font-mono {
 
 /* Reset Prose for Redesigned Code Blocks */
 .prose pre {
-  @apply bg-transparent p-0 m-0 border-none shadow-none overflow-visible;
+  @apply bg-transparent border-none shadow-none;
 }
 
 .prose pre code {
-  @apply bg-transparent p-0 m-0 border-none text-inherit font-normal;
+  @apply bg-transparent border-none text-inherit font-normal;
 }
 
 .prose code::before, .prose code::after {
