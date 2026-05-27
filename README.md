@@ -49,10 +49,10 @@ The seed script creates an initial administrator account:
 ## ✨ Key Features
 
 - **Distraction-free Workspace:** Collapse both the category sidebar and document list to maximize your writing and reading area (Shortcuts: `[` and `]`).
-- **Premium Markdown Experience:** Industry-standard rendering with Mac-style code blocks, JetBrains Mono typography, and high-performance syntax highlighting.
+- **Premium Markdown Experience:** Industry-standard rendering with Mac-style code blocks, JetBrains Mono typography, robust "One-Click Copy", and high-performance syntax highlighting.
 - **Improved Navigation:** Real-time category filtering and intuitive document organization.
-- **Modern Login Experience:** A beautiful, responsive split-screen login page with premium aesthetics.
-- **Theme Switcher:** Polished **Day (Light)** and **Night (Dark)** modes with system preference detection.
+- **Premium Login Experience:** A "decorated" command-center style login page featuring glassmorphism, deep shadows, and advanced animations.
+- **Theme Switcher:** Polished **Day (Light)** and **Night (Dark)** modes with system preference detection and persistent sessions (up to 7 days).
 - **Fast Search:** High-performance full-text search across document titles and content.
 - **Markdown Editor:** Professional-grade editor with line wrapping, syntax highlighting, and toolbar.
 - **Version Control:** Automatic snapshots created before every document update.
