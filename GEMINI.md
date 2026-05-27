@@ -21,9 +21,11 @@ This document contains foundational mandates for all AI agents working on the In
 - **Prisma Schema**: All schema changes must be done via `prisma/schema.prisma` and migrations.
 - **FULLTEXT Search**: Search functionality relies on MySQL `FULLTEXT` indexes. Ensure query optimization and appropriate fallbacks for short strings.
 - **Soft Deletes**: Use `isActive` flag for user "deletion" to preserve activity logs. Hard delete documents only when specifically requested.
+- **Public Access**: Explicitly use the `PUBLIC` status in `DocStatus` enum for documents intended for external sharing.
 
 ## 4. Security
 
 - **Credential Protection**: Never hardcode secrets. Use the validated `config/env.ts` in the backend and `import.meta.env` in the frontend.
 - **RBAC**: Always verify user roles (`ADMIN`, `EDITOR`, `VIEWER`) using the `authorize` middleware for sensitive routes.
 - **Input Validation**: Every API endpoint receiving data must validate it using a Zod schema before processing.
+- **External Sharing Security**: Public routes (e.g., `/api/v1/docs/public/:slug`) must NEVER return sensitive metadata or internal user information beyond basic authorship. They must strictly filter by the `PUBLIC` status in the database layer.
