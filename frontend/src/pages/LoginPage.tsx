@@ -45,26 +45,26 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen bg-background text-foreground selection:bg-primary/30">
-      {/* Left Side: Premium Hero Section */}
-      <div className="hidden lg:flex w-[55%] relative overflow-hidden">
+      {/* Left Side: Premium Hero Section - Forced Dark Scheme for Visibility */}
+      <div className="hidden lg:flex w-[55%] relative overflow-hidden dark">
         {/* Background Image with Overlay */}
         <div 
           className="absolute inset-0 bg-cover bg-center transition-transform duration-[10000ms] hover:scale-110"
           style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop")' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-tr from-[#0d1117] via-[#0d1117]/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#0d1117] via-[#0d1117]/90 to-transparent" />
         
         {/* Animated Grid Pattern */}
-        <div className="absolute inset-0 bg-[url(\'https://grainy-gradients.vercel.app/noise.svg\')] opacity-20" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
         
-        <div className="relative z-10 flex flex-col justify-between p-16 w-full">
+        <div className="relative z-10 flex flex-col justify-between p-16 w-full text-white">
           <div>
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-2xl shadow-primary/50 ring-1 ring-white/20">
               <span className="font-mono text-xl font-bold">KB</span>
             </div>
             
             <div className="mt-20 space-y-4">
-              <h1 className="text-6xl font-black tracking-tighter leading-none">
+              <h1 className="text-6xl font-black tracking-tight leading-none text-white drop-shadow-2xl">
                 BUILD <span className="text-primary italic">FASTER.</span><br />
                 DOCUMENT BETTER.
               </h1>
@@ -78,16 +78,16 @@ export default function LoginPage() {
             <div className="h-px w-24 bg-primary/50" />
             <div className="flex gap-12">
               <div className="space-y-1">
-                <p className="text-3xl font-bold tabular-nums">1.2ms</p>
-                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500">Global Search</p>
+                <p className="text-3xl font-black tabular-nums text-white tracking-tighter">1.2ms</p>
+                <p className="text-[10px] uppercase tracking-[0.3em] font-black text-zinc-500">Global Search</p>
               </div>
               <div className="space-y-1">
-                <p className="text-3xl font-bold tabular-nums">256-bit</p>
-                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500">AES Encryption</p>
+                <p className="text-3xl font-black tabular-nums text-white tracking-tighter">256-bit</p>
+                <p className="text-[10px] uppercase tracking-[0.3em] font-black text-zinc-500">AES Encryption</p>
               </div>
               <div className="space-y-1">
-                <p className="text-3xl font-bold tabular-nums">∞</p>
-                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500">Collaborators</p>
+                <p className="text-3xl font-black tabular-nums text-white tracking-tighter">∞</p>
+                <p className="text-[10px] uppercase tracking-[0.3em] font-black text-zinc-500">Collaborators</p>
               </div>
             </div>
           </div>
@@ -116,7 +116,7 @@ export default function LoginPage() {
 
             <div className="space-y-2 text-center lg:text-left">
               <div className="lg:hidden h-12 w-12 mx-auto flex items-center justify-center rounded-xl bg-primary text-primary-foreground mb-8 font-black shadow-lg shadow-primary/20">KB</div>
-              <h2 className="text-4xl font-black tracking-tighter text-foreground">Secure Access</h2>
+              <h2 className="text-4xl font-black tracking-tighter text-foreground uppercase">Secure Access</h2>
               <p className="text-muted-foreground font-medium text-sm">Deployment command center authentication.</p>
             </div>
 
@@ -130,7 +130,7 @@ export default function LoginPage() {
               
               <div className="space-y-5">
                 <div className="space-y-2 group">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 group-focus-within:text-primary transition-colors ml-1">
+                  <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/60 group-focus-within:text-primary transition-colors ml-1">
                     Identification / Email
                   </label>
                   <div className="relative">
@@ -148,7 +148,7 @@ export default function LoginPage() {
 
                 <div className="space-y-2 group">
                   <div className="flex justify-between items-center ml-1">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 group-focus-within:text-primary transition-colors">
+                    <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/60 group-focus-within:text-primary transition-colors">
                       Security / Password
                     </label>
                     <a href="#" className="text-[10px] font-black text-primary/60 hover:text-primary transition-colors uppercase tracking-widest">Reset?</a>
@@ -168,7 +168,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full overflow-hidden rounded-xl bg-primary py-4 text-[11px] font-black uppercase tracking-[0.25em] text-primary-foreground shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-primary/40 active:scale-[0.97] disabled:opacity-70"
+                className="group relative w-full overflow-hidden rounded-xl bg-primary py-4 text-[11px] font-black uppercase tracking-[0.3em] text-primary-foreground shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-primary/40 active:scale-[0.97] disabled:opacity-70"
               >
                 <div className="relative z-10 flex items-center justify-center gap-3">
                   {loading ? (
@@ -193,7 +193,7 @@ export default function LoginPage() {
             <div className="pt-8 border-t border-border/40 flex flex-col items-center gap-4">
               <div className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-muted/50 border border-border/50">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                <p className="text-[9px] font-black uppercase tracking-[0.25em] text-muted-foreground/60">
                   Cluster Status: Online
                 </p>
               </div>
@@ -205,7 +205,7 @@ export default function LoginPage() {
           <div className="absolute -top-4 -left-4 w-16 h-16 bg-primary/5 border border-primary/10 rounded-xl -z-10 blur-sm" />
         </div>
         
-        <p className="mt-12 text-center text-[10px] text-muted-foreground/40 font-black uppercase tracking-[0.3em]">
+        <p className="mt-12 text-center text-[10px] text-muted-foreground/40 font-black uppercase tracking-[0.4em]">
           Internal Knowledge Network — v1.0.4
         </p>
       </div>
