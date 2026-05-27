@@ -9,6 +9,7 @@ import AdminPage from './AdminPage';
 import WelcomePage from './WelcomePage';
 import MobileTopbar from '../components/layout/MobileTopbar';
 import BottomNav from '../components/layout/BottomNav';
+import SearchOverlay from '../components/layout/SearchOverlay';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useUIStore } from '../store/ui.store';
 import { PanelLeft, X } from 'lucide-react';
@@ -56,6 +57,7 @@ export default function KBPage() {
       {/* 2. Mobile Components */}
       <MobileTopbar />
       <BottomNav />
+      <SearchOverlay />
 
       {/* 3. Document List — Hidden on mobile when a doc is active */}
       <div className={`
