@@ -1,13 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '../../api/categories.api';
 import { useAuthStore } from '../../store/auth.store';
-import { LayoutGrid, Plus, LogOut } from 'lucide-react';
+import { useUIStore } from '../../store/ui.store';
+import { LayoutGrid, Plus, LogOut, PanelLeftClose } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import SearchBar from '../shared/SearchBar';
 import ThemeToggle from '../shared/ThemeToggle';
 
 export default function Sidebar() {
   const { user, logout } = useAuthStore();
+  const { toggleSidebar } = useUIStore();
   const location = useLocation();
   const { data: categories, isLoading } = useQuery({
     queryKey: ['categories'],
@@ -29,7 +31,16 @@ export default function Sidebar() {
               <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">devops knowledge base</span>
             </div>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <button 
+              onClick={toggleSidebar}
+              className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              title="Hide Sidebar"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </button>
+          </div>
         </div>
         
         <SearchBar />
@@ -79,20 +90,20 @@ export default function Sidebar() {
 
       <div className="border-t border-border p-3">
         {(user?.role === 'ADMIN' || user?.role === 'EDITOR') && (
-          <Link to="/docs/new" className="mb-3 flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+          <Link to="/docs/new" className="mb-3 flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors">
             <Plus className="h-4 w-4" />
             <span>New Runbook</span>
           </Link>
         )}
         <div className="flex items-center gap-3 px-2">
-          <div className="h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center text-[10px] text-muted-foreground">
+          <div className="h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center text-[10px] text-muted-foreground font-bold">
             {user?.displayName?.charAt(0)}
           </div>
           <div className="flex flex-1 flex-col overflow-hidden">
             <span className="truncate text-sm font-medium text-foreground">{user?.displayName}</span>
             <span className="truncate text-[10px] font-mono uppercase text-muted-foreground/70">{user?.role}</span>
           </div>
-          <button onClick={logout} className="text-muted-foreground hover:text-destructive">
+          <button onClick={logout} className="text-muted-foreground hover:text-destructive transition-colors">
             <LogOut className="h-4 w-4" />
           </button>
         </div>

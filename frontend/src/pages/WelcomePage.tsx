@@ -20,6 +20,14 @@ export default function WelcomePage() {
           <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-primary font-bold">/</kbd>
           <span className="text-sm text-muted-foreground">Search all docs</span>
         </div>
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 text-left shadow-sm">
+          <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-primary font-bold">[</kbd>
+          <span className="text-sm text-muted-foreground">Toggle Sidebar</span>
+        </div>
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 text-left shadow-sm">
+          <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-primary font-bold">]</kbd>
+          <span className="text-sm text-muted-foreground">Toggle Doc List</span>
+        </div>
       </div>
     </div>
   );

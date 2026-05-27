@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/auth.store';
+import { useUIStore } from '../store/ui.store';
 
 export function useKeyboardShortcuts() {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const { toggleSidebar, toggleDocList } = useUIStore();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -42,6 +44,18 @@ export function useKeyboardShortcuts() {
           searchInput.focus();
           searchInput.select();
         }
+      }
+
+      // '[' for toggle sidebar
+      if (e.key === '[') {
+        e.preventDefault();
+        toggleSidebar();
+      }
+
+      // ']' for toggle doc list
+      if (e.key === ']') {
+        e.preventDefault();
+        toggleDocList();
       }
     };
 

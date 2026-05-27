@@ -2,10 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { getDocs } from '../../api/docs.api';
 import { useUIStore } from '../../store/ui.store';
 import { useParams, Link } from 'react-router-dom';
+import { PanelLeftClose } from 'lucide-react';
 
 export default function DocList() {
   const { categorySlug } = useParams();
-  const { selectedDocId } = useUIStore();
+  const { selectedDocId, toggleDocList } = useUIStore();
   
   const { data, isLoading } = useQuery({
     queryKey: ['docs', categorySlug],
@@ -15,9 +16,18 @@ export default function DocList() {
   return (
     <div className="flex h-screen w-72 flex-col border-r border-border bg-background/50">
       <div className="p-4 border-b border-border">
-        <h2 className="text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground/70">
-          {categorySlug || 'All Documents'}
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground/70">
+            {categorySlug || 'All Documents'}
+          </h2>
+          <button 
+            onClick={toggleDocList}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            title="Hide Document List"
+          >
+            <PanelLeftClose className="h-3.5 w-3.5" />
+          </button>
+        </div>
         <div className="mt-1 flex items-baseline gap-1">
           <span className="text-xl font-bold text-foreground">{data?.pagination.total || 0}</span>
           <span className="text-sm text-primary">docs</span>
