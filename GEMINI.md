@@ -29,3 +29,10 @@ This document contains foundational mandates for all AI agents working on the In
 - **RBAC**: Always verify user roles (`ADMIN`, `EDITOR`, `VIEWER`) using the `authorize` middleware for sensitive routes.
 - **Input Validation**: Every API endpoint receiving data must validate it using a Zod schema before processing.
 - **External Sharing Security**: Public routes (e.g., `/api/v1/docs/public/:slug`) must NEVER return sensitive metadata or internal user information beyond basic authorship. They must strictly filter by the `PUBLIC` status in the database layer.
+
+## 5. UI & Typography Standards
+
+- **High-Contrast Aesthetic**: Maintain the "Command Center" aesthetic using `font-black` or `font-bold` for emphasis with appropriate tracking (`tracking-tight` or `tracking-tighter`).
+- **Typography Spacing**: Large uppercase labels must use `tracking-widest` to maintain readability.
+- **Theming**: All new components must support both Light and Dark modes using semantic Tailwind colors (`text-foreground`, `bg-background`, `border-border`).
+- **Markdown Rendering**: Code blocks must maintain a high-contrast dark theme (#0d1117) with explicit padding and alignment regardless of the global application theme.

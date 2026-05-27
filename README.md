@@ -50,8 +50,10 @@ The seed script creates an initial administrator account:
 
 - **Command Center Dashboard:** A premium, high-performance dashboard featuring real-time system metrics, node status, and intuitive navigation.
 - **Distraction-free Workspace:** Collapse both the category sidebar and document list to maximize your writing and reading area (Shortcuts: `[` and `]`).
+- **User & Credential Management:** Full administrative control over operator accounts, roles (RBAC), and secure password resets.
 - **External Public Sharing:** Generate secure, read-only public links for runbooks to collaborate with external stakeholders without requiring an account.
 - **Premium Markdown Experience:** Industry-standard rendering with Mac-style code blocks, JetBrains Mono typography, robust "One-Click Copy", and high-performance syntax highlighting.
+- **Advanced Typography:** Optimized letter-spacing and font-weights for long-form technical reading and high-contrast accessibility.
 - **Improved Navigation:** Real-time category filtering and intuitive document organization.
 - **Premium Login Experience:** A "decorated" command-center style login page featuring glassmorphism, deep shadows, and advanced animations.
 - **Theme Switcher:** Polished **Day (Light)** and **Night (Dark)** modes with system preference detection and persistent sessions (up to 7 days).
@@ -59,7 +61,6 @@ The seed script creates an initial administrator account:
 - **Markdown Editor:** Professional-grade editor with line wrapping, syntax highlighting, and toolbar.
 - **Version Control:** Automatic snapshots created before every document update.
 - **Attachments:** Secure file and image uploads integrated into the editing flow.
-- **Admin Dashboard:** Overview of system statistics and user management.
 - **Security:** JWT-based authentication with role-based access control (RBAC).
 
 ## 📂 Project Structure
