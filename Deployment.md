@@ -34,11 +34,18 @@ docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 ### 3. Initialize Database
-Once the database container is healthy, run the migrations:
+Once the database container is healthy, run the migrations and seed data:
 
 ```bash
+# Apply migrations
 docker compose -f docker-compose.prod.yml exec backend npx prisma migrate deploy
+
+# Seed initial admin and categories
+docker compose -f docker-compose.prod.yml exec backend npm run seed
 ```
+
+*Note: The initial administrator will be created with `admin@infrakb.local` / `Admin123456`.*
+
 
 ## 🏗 Infrastructure Overview
 

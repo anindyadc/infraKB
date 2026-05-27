@@ -21,25 +21,34 @@ InfraKB is a self-hosted, private knowledge base designed specifically for DevOp
    docker compose up -d
    ```
 
-3. **Run Database Migrations**
+3. **Initialize Database**
    ```bash
-   docker compose exec backend npx prisma migrate dev
+   # Sync schema and generate client
+   docker compose exec backend npx prisma db push
+   
+   # Populate initial admin and categories
+   docker compose exec backend npm run seed
    ```
 
 4. **Access the App**
    Open [http://localhost:5173](http://localhost:5173) in your browser.
-   *The first user registered will automatically be granted the **ADMIN** role.*
+
+### 🔑 Default Credentials
+The seed script creates an initial administrator account:
+- **Email:** `admin@infrakb.local`
+- **Password:** `Admin123456`
 
 ## 🛠 Tech Stack
 
 - **Backend:** Node.js (Express), Prisma ORM, MySQL 8
-- **Frontend:** React 18, Vite, TypeScript, Tailwind CSS, shadcn/ui
+- **Frontend:** React 18, Vite, TypeScript, Tailwind CSS
 - **Editor:** CodeMirror 6 (with Markdown and syntax highlighting)
 - **State Management:** Zustand, TanStack Query v5
 - **Infrastructure:** Docker, Docker Compose, Nginx
 
 ## ✨ Key Features
 
+- **Theme Switcher:** Polished **Day (Light)** and **Night (Dark)** modes with system preference detection.
 - **Fast Search:** High-performance full-text search across document titles and content.
 - **Markdown Editor:** Professional-grade editor with line wrapping, syntax highlighting, and toolbar.
 - **Rich Rendering:** Support for code blocks, callouts, and YouTube embeds.

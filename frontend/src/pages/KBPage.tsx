@@ -10,7 +10,7 @@ import WelcomePage from './WelcomePage';
 
 export default function KBPage() {
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#0d1117] text-[#e6edf3]">
+    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
       <Sidebar />
       <DocList />
       <main className="flex-1 overflow-hidden">

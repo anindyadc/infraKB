@@ -3,6 +3,8 @@ import { EditorView, basicSetup } from 'codemirror';
 import { markdown } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
 import { oneDark } from '@codemirror/theme-one-dark';
+import { useUIStore } from '../../store/ui.store';
+import { Compartment } from '@codemirror/state';
 
 interface MarkdownEditorProps {
   value: string;
@@ -13,9 +15,12 @@ export interface MarkdownEditorHandle {
   insertText: (text: string) => void;
 }
 
+const themeCompartment = new Compartment();
+
 const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorProps>(({ value, onChange }, ref) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
+  const theme = useUIStore((state) => state.theme);
 
   useImperativeHandle(ref, () => ({
     insertText: (text: string) => {
@@ -38,12 +43,17 @@ const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorProps>(({ 
       }
     });
 
+    const getThemeExtension = () => {
+      const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      return isDark ? oneDark : [];
+    };
+
     const view = new EditorView({
       doc: value,
       extensions: [
         basicSetup,
         markdown({ base: markdown().language, codeLanguages: languages }),
-        oneDark,
+        themeCompartment.of(getThemeExtension()),
         EditorView.lineWrapping,
         updateListener,
       ],
@@ -56,6 +66,16 @@ const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorProps>(({ 
       view.destroy();
     };
   }, []);
+
+  // Update theme dynamically
+  useEffect(() => {
+    if (viewRef.current) {
+      const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      viewRef.current.dispatch({
+        effects: themeCompartment.reconfigure(isDark ? oneDark : []),
+      });
+    }
+  }, [theme]);
 
   // Update doc if value changes externally (e.g. initial load)
   useEffect(() => {

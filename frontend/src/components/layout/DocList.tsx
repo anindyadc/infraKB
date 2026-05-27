@@ -13,20 +13,20 @@ export default function DocList() {
   });
 
   return (
-    <div className="flex h-screen w-72 flex-col border-r border-[#30363d] bg-[#1c2128]">
-      <div className="p-4 border-b border-[#30363d]">
-        <h2 className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#484f58]">
+    <div className="flex h-screen w-72 flex-col border-r border-border bg-background/50">
+      <div className="p-4 border-b border-border">
+        <h2 className="text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground/70">
           {categorySlug || 'All Documents'}
         </h2>
         <div className="mt-1 flex items-baseline gap-1">
-          <span className="text-xl font-bold text-[#e6edf3]">{data?.pagination.total || 0}</span>
-          <span className="text-sm text-[#10b981]">docs</span>
+          <span className="text-xl font-bold text-foreground">{data?.pagination.total || 0}</span>
+          <span className="text-sm text-primary">docs</span>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-2 space-y-1">
         {isLoading ? (
-          <div className="p-4 text-center text-xs text-[#484f58]">Loading docs...</div>
+          <div className="p-4 text-center text-xs text-muted-foreground/70">Loading docs...</div>
         ) : (
           data?.docs.map((doc: any) => (
             <Link
@@ -34,18 +34,18 @@ export default function DocList() {
               to={`/docs/${doc.slug}`}
               className={`block rounded-md p-3 transition-colors ${
                 doc.id === selectedDocId
-                  ? 'bg-[#262c36] border border-[#10b981]/30'
-                  : 'hover:bg-[#21262d] border border-transparent'
+                  ? 'bg-muted border border-primary/30'
+                  : 'hover:bg-accent border border-transparent'
               }`}
             >
-              <h3 className={`text-sm font-medium leading-snug ${doc.id === selectedDocId ? 'text-[#10b981]' : 'text-[#e6edf3]'}`}>
+              <h3 className={`text-sm font-medium leading-snug ${doc.id === selectedDocId ? 'text-primary' : 'text-foreground'}`}>
                 {doc.title}
               </h3>
               <div className="mt-2 flex items-center gap-2">
-                <span className="rounded bg-[#58a6ff]/10 px-1.5 py-0.5 text-[10px] font-mono text-[#58a6ff]">
+                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-mono text-primary">
                   {doc.category?.name || 'Uncategorized'}
                 </span>
-                <span className="ml-auto text-[10px] font-mono text-[#484f58]">
+                <span className="ml-auto text-[10px] font-mono text-muted-foreground/70">
                   {new Date(doc.updatedAt).toLocaleDateString()}
                 </span>
               </div>

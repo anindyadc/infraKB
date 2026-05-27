@@ -14,30 +14,30 @@ export default function SearchPage() {
   });
 
   return (
-    <div className="flex h-full flex-col bg-[#0d1117]">
-      <div className="border-b border-[#30363d] bg-[#161b22] px-8 py-6">
-        <h1 className="flex items-center gap-3 text-2xl font-bold text-[#e6edf3]">
-          <Search className="h-6 w-6 text-[#10b981]" />
+    <div className="flex h-full flex-col bg-background">
+      <div className="border-b border-border bg-card px-8 py-6">
+        <h1 className="flex items-center gap-3 text-2xl font-bold text-foreground">
+          <Search className="h-6 w-6 text-primary" />
           <span>Search Results</span>
         </h1>
-        <p className="mt-1 text-sm text-[#8b949e]">
-          Showing results for <span className="text-[#10b981]">"{query}"</span>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Showing results for <span className="text-primary font-bold">"{query}"</span>
         </p>
       </div>
 
       <div className="flex-1 overflow-y-auto px-8 py-8">
         <div className="mx-auto max-w-4xl space-y-6">
           {isLoading ? (
-            <div className="text-center text-[#484f58]">Searching...</div>
+            <div className="text-center text-muted-foreground/70">Searching...</div>
           ) : data?.data.length === 0 ? (
-            <div className="text-center text-[#8b949e]">No documents found matching your search.</div>
+            <div className="text-center text-muted-foreground">No documents found matching your search.</div>
           ) : (
             data?.data.map((doc: any) => (
-              <div key={doc.id} className="rounded-lg border border-[#30363d] bg-[#161b22] p-6 transition-colors hover:border-[#10b981]/30">
-                <Link to={`/docs/${doc.slug}`} className="text-xl font-bold text-[#58a6ff] hover:underline">
+              <div key={doc.id} className="rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30 shadow-sm">
+                <Link to={`/docs/${doc.slug}`} className="text-xl font-bold text-primary hover:underline">
                   {doc.title}
                 </Link>
-                <div className="mt-2 flex items-center gap-4 text-xs text-[#484f58]">
+                <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground/70">
                   <div className="flex items-center gap-1">
                     <Folder className="h-3 w-3" />
                     <span>{doc.category?.name || 'Uncategorized'}</span>
@@ -52,14 +52,14 @@ export default function SearchPage() {
                   </div>
                 </div>
                 <div 
-                  className="mt-4 text-sm leading-relaxed text-[#8b949e] line-clamp-3"
+                  className="mt-4 text-sm leading-relaxed text-muted-foreground line-clamp-3"
                   dangerouslySetInnerHTML={{ __html: doc.highlightedExcerpt }}
                 />
-                <div className="mt-4 flex items-center justify-between border-t border-[#30363d] pt-4">
-                  <span className="text-[10px] font-mono text-[#484f58]">
+                <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
+                  <span className="text-[10px] font-mono text-muted-foreground/70">
                     Last updated {new Date(doc.updatedAt).toLocaleDateString()}
                   </span>
-                  <Link to={`/docs/${doc.slug}`} className="text-xs font-semibold text-[#10b981] hover:text-[#0d9268]">
+                  <Link to={`/docs/${doc.slug}`} className="text-xs font-semibold text-primary hover:text-primary/80">
                     Read Runbook →
                   </Link>
                 </div>

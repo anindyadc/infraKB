@@ -36,24 +36,24 @@ export default function NewDocPage() {
   };
 
   return (
-    <div className="flex h-full flex-col bg-[#0d1117]">
-      <div className="flex items-center justify-between border-b border-[#30363d] bg-[#161b22] px-4 py-2">
+    <div className="flex h-full flex-col bg-background">
+      <div className="flex items-center justify-between border-b border-border bg-card px-4 py-2">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="text-[#8b949e] hover:text-[#e6edf3]">
+          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
             <ChevronLeft className="h-5 w-5" />
           </button>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="bg-transparent text-lg font-bold text-[#e6edf3] focus:outline-none"
+            className="bg-transparent text-lg font-bold text-foreground focus:outline-none"
             placeholder="Document Title"
           />
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 rounded-md border border-[#30363d] bg-[#21262d] px-3 py-1.5 text-xs font-medium text-[#8b949e] hover:border-[#8b949e] hover:text-[#e6edf3]"
+            className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-muted-foreground hover:text-foreground"
           >
             <X className="h-3.5 w-3.5" />
             <span>Cancel</span>
@@ -61,7 +61,7 @@ export default function NewDocPage() {
           <button
             onClick={handleSave}
             disabled={mutation.isPending}
-            className="flex items-center gap-2 rounded-md bg-[#10b981] px-3 py-1.5 text-xs font-bold text-[#0d1117] hover:bg-[#0d9268] disabled:opacity-50"
+            className="flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             <Save className="h-3.5 w-3.5" />
             <span>{mutation.isPending ? 'Creating...' : 'Create Runbook'}</span>

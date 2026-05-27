@@ -8,10 +8,10 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'activity'>('stats');
 
   return (
-    <div className="flex h-full flex-col bg-[#0d1117]">
-      <div className="border-b border-[#30363d] bg-[#161b22] px-8 py-6">
-        <h1 className="flex items-center gap-3 text-2xl font-bold text-[#e6edf3]">
-          <ShieldCheck className="h-6 w-6 text-[#10b981]" />
+    <div className="flex h-full flex-col bg-background">
+      <div className="border-b border-border bg-card px-8 py-6">
+        <h1 className="flex items-center gap-3 text-2xl font-bold text-foreground">
+          <ShieldCheck className="h-6 w-6 text-primary" />
           <span>Admin Panel</span>
         </h1>
         <div className="mt-6 flex gap-4">
@@ -49,8 +49,8 @@ function TabButton({ active, onClick, icon, label }: any) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-        active ? 'bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/20' : 'text-[#8b949e] hover:bg-[#21262d] hover:text-[#e6edf3]'
+      className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+        active ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
       }`}
     >
       {icon}
@@ -65,34 +65,34 @@ function StatsDashboard() {
     queryFn: getStats,
   });
 
-  if (isLoading) return <div className="text-[#484f58]">Loading stats...</div>;
+  if (isLoading) return <div className="text-muted-foreground/70">Loading stats...</div>;
 
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard label="Total Documents" value={stats.totalDocs} />
-      <StatCard label="Published" value={stats.publishedDocs} color="text-[#10b981]" />
-      <StatCard label="Drafts" value={stats.draftDocs} color="text-[#d29922]" />
+      <StatCard label="Published" value={stats.publishedDocs} color="text-primary" />
+      <StatCard label="Drafts" value={stats.draftDocs} color="text-orange-500" />
       <StatCard label="Users" value={stats.totalUsers} />
       
       <div className="col-span-full mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-[#30363d] bg-[#161b22] p-6">
-          <h3 className="mb-4 text-sm font-bold text-[#e6edf3]">Recently Updated</h3>
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+          <h3 className="mb-4 text-sm font-bold text-foreground">Recently Updated</h3>
           <div className="space-y-4">
             {stats.recentDocs.map((doc: any) => (
               <div key={doc.id} className="flex items-center justify-between">
-                <span className="text-sm text-[#8b949e]">{doc.title}</span>
-                <span className="text-[10px] font-mono text-[#484f58]">{new Date(doc.updatedAt).toLocaleDateString()}</span>
+                <span className="text-sm text-muted-foreground hover:text-primary cursor-pointer transition-colors">{doc.title}</span>
+                <span className="text-[10px] font-mono text-muted-foreground/70">{new Date(doc.updatedAt).toLocaleDateString()}</span>
               </div>
             ))}
           </div>
         </div>
-        <div className="rounded-lg border border-[#30363d] bg-[#161b22] p-6">
-          <h3 className="mb-4 text-sm font-bold text-[#e6edf3]">Top Viewed</h3>
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+          <h3 className="mb-4 text-sm font-bold text-foreground">Top Viewed</h3>
           <div className="space-y-4">
             {stats.topViewedDocs.map((doc: any) => (
               <div key={doc.id} className="flex items-center justify-between">
-                <span className="text-sm text-[#8b949e]">{doc.title}</span>
-                <span className="text-[10px] font-mono text-[#10b981]">{doc.viewCount} views</span>
+                <span className="text-sm text-muted-foreground hover:text-primary cursor-pointer transition-colors">{doc.title}</span>
+                <span className="text-[10px] font-mono text-primary font-bold">{doc.viewCount} views</span>
               </div>
             ))}
           </div>
@@ -102,10 +102,10 @@ function StatsDashboard() {
   );
 }
 
-function StatCard({ label, value, color = 'text-[#e6edf3]' }: any) {
+function StatCard({ label, value, color = 'text-foreground' }: any) {
   return (
-    <div className="rounded-lg border border-[#30363d] bg-[#161b22] p-6">
-      <p className="text-xs font-mono uppercase tracking-widest text-[#484f58]">{label}</p>
+    <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+      <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground/70">{label}</p>
       <p className={`mt-2 text-3xl font-bold ${color}`}>{value}</p>
     </div>
   );
@@ -117,38 +117,38 @@ function UserList() {
     queryFn: () => getUsers({}),
   });
 
-  if (isLoading) return <div className="text-[#484f58]">Loading users...</div>;
+  if (isLoading) return <div className="text-muted-foreground/70">Loading users...</div>;
 
   return (
-    <div className="overflow-hidden rounded-lg border border-[#30363d] bg-[#161b22]">
+    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-[#30363d] bg-[#0d1117]/50">
-            <th className="px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-[#484f58]">User</th>
-            <th className="px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-[#484f58]">Role</th>
-            <th className="px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-[#484f58]">Status</th>
-            <th className="px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-[#484f58]">Last Login</th>
+          <tr className="border-b border-border bg-muted/50">
+            <th className="px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground/70">User</th>
+            <th className="px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground/70">Role</th>
+            <th className="px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground/70">Status</th>
+            <th className="px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground/70">Last Login</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#30363d]">
+        <tbody className="divide-y divide-border">
           {data.data.map((user: any) => (
-            <tr key={user.id} className="hover:bg-[#21262d]">
+            <tr key={user.id} className="hover:bg-accent transition-colors">
               <td className="px-6 py-4">
                 <div className="flex flex-col">
-                  <span className="font-medium text-[#e6edf3]">{user.displayName}</span>
-                  <span className="text-xs text-[#8b949e]">{user.email}</span>
+                  <span className="font-medium text-foreground">{user.displayName}</span>
+                  <span className="text-xs text-muted-foreground">{user.email}</span>
                 </div>
               </td>
               <td className="px-6 py-4">
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${user.role === 'ADMIN' ? 'bg-[#bc8cff]/10 text-[#bc8cff]' : 'bg-[#58a6ff]/10 text-[#58a6ff]'}`}>
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${user.role === 'ADMIN' ? 'bg-purple-500/10 text-purple-500' : 'bg-blue-500/10 text-blue-500'}`}>
                   {user.role}
                 </span>
               </td>
               <td className="px-6 py-4">
-                <span className={`h-2 w-2 inline-block rounded-full ${user.isActive ? 'bg-[#10b981]' : 'bg-[#f85149]'}`} />
-                <span className="ml-2 text-[#8b949e]">{user.isActive ? 'Active' : 'Disabled'}</span>
+                <span className={`h-2 w-2 inline-block rounded-full ${user.isActive ? 'bg-primary' : 'bg-destructive'}`} />
+                <span className="ml-2 text-muted-foreground">{user.isActive ? 'Active' : 'Disabled'}</span>
               </td>
-              <td className="px-6 py-4 text-[#8b949e]">
+              <td className="px-6 py-4 text-muted-foreground">
                 {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : 'Never'}
               </td>
             </tr>
@@ -160,5 +160,5 @@ function UserList() {
 }
 
 function ActivityLog() {
-  return <div className="text-[#8b949e]">Activity log coming soon...</div>;
+  return <div className="text-muted-foreground">Activity log coming soon...</div>;
 }
