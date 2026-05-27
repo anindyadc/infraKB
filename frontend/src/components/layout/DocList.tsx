@@ -14,24 +14,24 @@ export default function DocList() {
   });
 
   return (
-    <div className="flex h-screen w-72 flex-col border-r border-border bg-background/50">
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center justify-between">
-          <h2 className="text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground/70">
+    <div className="flex h-screen w-72 flex-col border-r border-border bg-background/50 relative group">
+      <div className="p-4 border-b border-border flex items-center justify-between">
+        <div className="overflow-hidden">
+          <h2 className="text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground/70 truncate">
             {categorySlug || 'All Documents'}
           </h2>
-          <button 
-            onClick={toggleDocList}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-            title="Hide Document List"
-          >
-            <PanelLeftClose className="h-3.5 w-3.5" />
-          </button>
+          <div className="mt-1 flex items-baseline gap-1">
+            <span className="text-xl font-bold text-foreground">{data?.pagination.total || 0}</span>
+            <span className="text-sm text-primary font-medium">docs</span>
+          </div>
         </div>
-        <div className="mt-1 flex items-baseline gap-1">
-          <span className="text-xl font-bold text-foreground">{data?.pagination.total || 0}</span>
-          <span className="text-sm text-primary">docs</span>
-        </div>
+        <button 
+          onClick={toggleDocList}
+          className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-all shrink-0"
+          title="Hide Document List"
+        >
+          <PanelLeftClose className="h-4 w-4" />
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-2 space-y-1">
