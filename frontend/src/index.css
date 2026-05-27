@@ -71,7 +71,23 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings: "rlig" 1, "calt" 1, "kern" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Global Weight Spacing Refinements */
+  .font-bold {
+    @apply tracking-tight;
+  }
+  
+  .font-black {
+    @apply tracking-tighter;
+  }
+
+  /* Universal Uppercase Spacing */
+  .uppercase {
+    @apply tracking-widest;
   }
 }
 
@@ -102,16 +118,16 @@
   @apply text-foreground font-black tracking-tighter border-b border-border/40 pb-3 mb-6 mt-12;
 }
 
-.prose h1 { @apply text-4xl; }
-.prose h2 { @apply text-3xl; }
+.prose h1 { @apply text-4xl lg:text-6xl; }
+.prose h2 { @apply text-3xl lg:text-4xl; }
 .prose h3 { @apply text-2xl; }
 
 .prose p {
-  @apply mb-5 text-[16px] leading-[1.8];
+  @apply mb-5 text-[16px] leading-[1.8] tracking-normal;
 }
 
 .prose strong {
-  @apply text-foreground font-extrabold;
+  @apply text-foreground font-extrabold tracking-tight;
 }
 
 .prose code {
@@ -149,22 +165,22 @@ code, pre, .font-mono {
 .prose ol { @apply list-decimal list-outside ml-6; }
 
 /* Premium High-Contrast Syntax Highlighting */
-.hljs-keyword, .hljs-selector-tag, .hljs-subst { @apply text-[#ff7b72] font-bold; } /* Red/Pink commands */
-.hljs-string, .hljs-doctag, .hljs-regexp { @apply text-[#a5d6ff]; } /* Bright Blue strings */
-.hljs-title, .hljs-section, .hljs-selector-id { @apply text-[#ffa657] font-bold; } /* Orange titles */
-.hljs-variable, .hljs-template-variable { @apply text-[#79c0ff]; } /* Light Blue variables */
+.hljs-keyword, .hljs-selector-tag, .hljs-subst { @apply text-[#ff7b72] font-bold; }
+.hljs-string, .hljs-doctag, .hljs-regexp { @apply text-[#a5d6ff]; }
+.hljs-title, .hljs-section, .hljs-selector-id { @apply text-[#ffa657] font-bold; }
+.hljs-variable, .hljs-template-variable { @apply text-[#79c0ff]; }
 .hljs-type, .hljs-selector-class, .hljs-link { @apply text-[#ff7b72]; }
-.hljs-comment, .hljs-quote { @apply text-zinc-500 italic; } /* Muted comments */
+.hljs-comment, .hljs-quote { @apply text-zinc-500 italic; }
 .hljs-number, .hljs-literal { @apply text-[#79c0ff]; }
-.hljs-params, .hljs-attr, .hljs-attribute { @apply text-zinc-100; } /* BRIGHT WHITE for parameters/attributes */
-.hljs-built_in, .hljs-bullet { @apply text-[#ffa657]; } /* Built-ins in Orange */
+.hljs-params, .hljs-attr, .hljs-attribute { @apply text-zinc-100; }
+.hljs-built_in, .hljs-bullet { @apply text-[#ffa657]; }
 .hljs-meta { @apply text-zinc-400; }
 .hljs-symbol, .hljs-code { @apply text-[#79c0ff]; }
 
 /* Specific fixes for Shell/Bash contrast */
 .hljs-meta .hljs-keyword { @apply text-[#ff7b72]; }
-.language-bash .hljs-built_in { @apply text-[#f0883e]; } /* Vivid Orange for commands like cat, tr */
-.language-bash .hljs-string { @apply text-[#7ee787]; } /* Emerald Green for paths/strings */
+.language-bash .hljs-built_in { @apply text-[#f0883e]; }
+.language-bash .hljs-string { @apply text-[#7ee787]; }
 .language-bash .hljs-variable { @apply text-[#79c0ff]; }
 
 .no-scrollbar::-webkit-scrollbar {
