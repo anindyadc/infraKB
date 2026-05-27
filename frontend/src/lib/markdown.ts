@@ -8,12 +8,12 @@ export const renderMarkdown = (content: string): string => {
   renderer.code = (code, language) => {
     const validLanguage = language && hljs.getLanguage(language) ? language : 'plaintext';
     const highlighted = hljs.highlight(code, { language: validLanguage }).value;
-    return `<div class="code-wrap my-4 overflow-hidden rounded-lg border border-border bg-muted/30">
-      <div class="flex items-center justify-between border-b border-border bg-muted/80 px-4 py-2">
-        <span class="font-mono text-xs font-bold uppercase tracking-widest text-primary">${validLanguage}</span>
-        <button class="copy-btn rounded border border-border bg-background px-2 py-1 font-mono text-[10px] text-muted-foreground hover:text-primary transition-colors">copy</button>
+    return `<div class="code-wrap my-6 overflow-hidden rounded-xl border border-white/10 bg-[#0d1117] shadow-2xl">
+      <div class="flex items-center justify-between border-b border-white/5 bg-white/5 px-4 py-2">
+        <span class="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">${validLanguage}</span>
+        <button class="copy-btn rounded-md border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-[10px] font-bold text-zinc-400 hover:text-white hover:bg-white/10 transition-all active:scale-95">COPY</button>
       </div>
-      <pre class="p-4 overflow-x-auto text-sm leading-relaxed"><code class="hljs language-${validLanguage}">${highlighted}</code></pre>
+      <pre class="p-5 overflow-x-auto text-[13px] leading-relaxed text-zinc-100 selection:bg-primary/30"><code class="hljs language-${validLanguage}">${highlighted}</code></pre>
     </div>`;
   };
 

@@ -118,6 +118,19 @@
   @apply text-primary no-underline hover:underline font-medium;
 }
 
+/* Reset Prose for Code Blocks */
+.prose pre {
+  @apply bg-transparent p-0 m-0 border-none shadow-none;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0 m-0 border-none text-inherit font-normal;
+}
+
+.prose code::before, .prose code::after {
+  content: none !important;
+}
+
 .prose ul {
   @apply list-disc list-inside;
 }
