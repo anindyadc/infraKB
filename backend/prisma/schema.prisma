@@ -1,0 +1,179 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextIndex", "fullTextSearch"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ── USERS ──────────────────────────────────────────────────
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique @db.VarChar(255)
+  username     String    @unique @db.VarChar(80)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  displayName  String    @map("display_name") @db.VarChar(120)
+  role         Role      @default(EDITOR)
+  avatarUrl    String?   @map("avatar_url") @db.VarChar(500)
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  docs         Document[]
+  refreshTokens RefreshToken[]
+  activityLogs ActivityLog[]
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN   // full access: manage users, delete anything, access admin panel
+  EDITOR  // create, edit own docs; edit others' docs
+  VIEWER  // read-only access to all docs
+}
+
+// ── REFRESH TOKENS ─────────────────────────────────────────
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique @db.VarChar(512)
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  revokedAt DateTime? @map("revoked_at")
+  userAgent String?  @map("user_agent") @db.VarChar(500)
+  ipAddress String?  @map("ip_address") @db.VarChar(45)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ── CATEGORIES ─────────────────────────────────────────────
+model Category {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique @db.VarChar(80)      // e.g. "Containers"
+  slug        String     @unique @db.VarChar(80)      // e.g. "containers"
+  icon        String?    @db.VarChar(10)              // emoji
+  description String?    @db.VarChar(255)
+  parentId    Int?       @map("parent_id")
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+  docs        Document[]
+  sortOrder   Int        @default(0) @map("sort_order")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  @@map("categories")
+}
+
+// ── DOCUMENTS ──────────────────────────────────────────────
+model Document {
+  id          Int          @id @default(autoincrement())
+  title       String       @db.VarChar(300)
+  slug        String       @unique @db.VarChar(320)
+  content     String       @db.LongText         // raw Markdown
+  excerpt     String?      @db.VarChar(500)     // auto-generated from content
+  categoryId  Int?         @map("category_id")
+  category    Category?    @relation(fields: [categoryId], references: [id])
+  authorId    Int          @map("author_id")
+  author      User         @relation(fields: [authorId], references: [id])
+  osEnv       String?      @map("os_env") @db.VarChar(150)    // "Ubuntu 24.04 LTS"
+  status      DocStatus    @default(PUBLISHED)
+  isPinned    Boolean      @default(false) @map("is_pinned")
+  viewCount   Int          @default(0) @map("view_count")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  publishedAt DateTime?    @map("published_at")
+
+  tags        DocTag[]
+  attachments Attachment[]
+  versions    DocVersion[]
+  activityLogs ActivityLog[]
+
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([status])
+  @@index([isPinned])
+  @@fulltext([title, content])   // MySQL FULLTEXT index for search
+  @@map("documents")
+}
+
+enum DocStatus {
+  DRAFT      // only visible to the author and admins
+  PUBLISHED  // visible to all authenticated users
+  ARCHIVED   // hidden from lists but accessible via direct link
+}
+
+// ── TAGS ───────────────────────────────────────────────────
+model Tag {
+  id   Int      @id @default(autoincrement())
+  name String   @unique @db.VarChar(60)
+  slug String   @unique @db.VarChar(60)
+  docs DocTag[]
+
+  @@map("tags")
+}
+
+model DocTag {
+  docId Int      @map("doc_id")
+  tagId Int      @map("tag_id")
+  doc   Document @relation(fields: [docId], references: [id], onDelete: Cascade)
+  tag   Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([docId, tagId])
+  @@map("doc_tags")
+}
+
+// ── DOCUMENT VERSIONS ──────────────────────────────────────
+model DocVersion {
+  id        Int      @id @default(autoincrement())
+  docId     Int      @map("doc_id")
+  doc       Document @relation(fields: [docId], references: [id], onDelete: Cascade)
+  content   String   @db.LongText
+  title     String   @db.VarChar(300)
+  editedBy  Int      @map("edited_by")
+  createdAt DateTime @default(now()) @map("created_at")
+  changeSummary String? @map("change_summary") @db.VarChar(255)
+
+  @@index([docId])
+  @@map("doc_versions")
+}
+
+// ── ATTACHMENTS ────────────────────────────────────────────
+model Attachment {
+  id           Int      @id @default(autoincrement())
+  docId        Int      @map("doc_id")
+  doc          Document @relation(fields: [docId], references: [id], onDelete: Cascade)
+  filename     String   @db.VarChar(255)       // original filename
+  storedName   String   @map("stored_name") @db.VarChar(255)  // UUID filename on disk
+  mimeType     String   @map("mime_type") @db.VarChar(100)
+  sizeBytes    Int      @map("size_bytes")
+  url          String   @db.VarChar(500)       // public URL path
+  uploadedBy   Int      @map("uploaded_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([docId])
+  @@map("attachments")
+}
+
+// ── ACTIVITY LOG ───────────────────────────────────────────
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  docId     Int?     @map("doc_id")
+  doc       Document? @relation(fields: [docId], references: [id], onDelete: SetNull)
+  action    String   @db.VarChar(60)   // "doc.created" | "doc.updated" | "doc.deleted" | "user.login" etc.
+  meta      Json?                      // extra context (old title, etc.)
+  ipAddress String?  @map("ip_address") @db.VarChar(45)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([docId])
+  @@index([action])
+  @@map("activity_logs")
+}
