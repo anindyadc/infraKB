@@ -42,6 +42,8 @@ export class AuthController {
     try {
       const data = loginSchema.parse(req.body);
       const { user, accessToken, refreshToken } = await AuthService.login(data);
+      
+      console.log(`User logged in: ${user.email}`);
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
@@ -64,6 +66,7 @@ export class AuthController {
         },
       });
     } catch (error: any) {
+      console.error(`Login failed for ${req.body?.email}: ${error.message}`);
       const status = error.message === 'INVALID_CREDENTIALS' ? 401 : 403;
       return res.status(status).json({
         success: false,
