@@ -58,6 +58,29 @@ function App() {
     bootstrap();
   }, []);
 
+  // Global Copy Helper
+  useEffect(() => {
+    (window as any).__copyCode = (button: HTMLElement, b64Code: string) => {
+      try {
+        const code = decodeURIComponent(escape(atob(b64Code)));
+        navigator.clipboard.writeText(code).then(() => {
+          const span = button.querySelector('.btn-text');
+          if (span) {
+            const oldText = span.textContent;
+            (span as any).textContent = 'COPIED!';
+            button.classList.add('border-emerald-500/50', 'text-emerald-500');
+            setTimeout(() => {
+              (span as any).textContent = oldText;
+              button.classList.remove('border-emerald-500/50', 'text-emerald-500');
+            }, 2000);
+          }
+        });
+      } catch (err) {
+        console.error('Failed to copy code', err);
+      }
+    };
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>

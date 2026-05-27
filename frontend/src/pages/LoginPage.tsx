@@ -94,96 +94,120 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right Side: Elegant Login Form */}
-      <div className="flex-1 flex flex-col justify-center px-8 sm:px-16 lg:px-24 relative bg-background">
+      {/* Right Side: Premium Decorated Login Form */}
+      <div className="flex-1 flex flex-col justify-center px-8 sm:px-16 lg:px-24 relative bg-background overflow-hidden">
+        {/* Background decorative blobs */}
+        <div className="absolute top-1/4 right-[-5%] w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-[-5%] w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+
         <div className="absolute top-8 right-8">
           <ThemeToggle />
         </div>
 
-        <div className="w-full max-w-[400px] mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div className="space-y-2">
-            <div className="lg:hidden h-10 w-10 flex items-center justify-center rounded-lg bg-primary text-primary-foreground mb-6 font-bold">KB</div>
-            <h2 className="text-4xl font-extrabold tracking-tight">Welcome Back</h2>
-            <p className="text-muted-foreground font-medium">Please enter your details to sign in.</p>
-          </div>
-
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            {error && (
-              <div className="rounded-xl bg-destructive/10 p-4 text-sm text-destructive border border-destructive/20 flex items-center gap-3 animate-shake">
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="font-medium">{error}</span>
-              </div>
-            )}
+        <div className="w-full max-w-[440px] mx-auto relative group">
+          {/* Decorative outer glow/box */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-primary/0 rounded-[2rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+          
+          {/* Main Login Card */}
+          <div className="relative space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-1000 bg-card border border-border/50 rounded-[1.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-sm">
             
-            <div className="space-y-4">
-              <div className="space-y-2 group">
-                <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-focus-within:text-primary transition-colors">
-                  Work Email
-                </label>
-                <input
-                  {...register('email')}
-                  type="email"
-                  className="w-full rounded-xl border border-input bg-background/50 px-4 py-3.5 text-foreground placeholder-muted-foreground/30 ring-offset-background focus:bg-background focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-200"
-                  placeholder="name@company.com"
-                />
-                {errors.email && (
-                  <p className="mt-1.5 text-[11px] text-destructive font-bold uppercase tracking-tight">{errors.email.message}</p>
-                )}
-              </div>
+            {/* Inner top decoration line */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent rounded-full" />
 
-              <div className="space-y-2 group">
-                <div className="flex justify-between items-center">
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-focus-within:text-primary transition-colors">
-                    Password
-                  </label>
-                  <a href="#" className="text-[11px] font-bold text-primary hover:underline underline-offset-4">Forgot?</a>
-                </div>
-                <input
-                  {...register('password')}
-                  type="password"
-                  className="w-full rounded-xl border border-input bg-background/50 px-4 py-3.5 text-foreground placeholder-muted-foreground/30 ring-offset-background focus:bg-background focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-200"
-                  placeholder="••••••••"
-                />
-                {errors.password && (
-                  <p className="mt-1.5 text-[11px] text-destructive font-bold uppercase tracking-tight">{errors.password.message}</p>
-                )}
-              </div>
+            <div className="space-y-2 text-center lg:text-left">
+              <div className="lg:hidden h-12 w-12 mx-auto flex items-center justify-center rounded-xl bg-primary text-primary-foreground mb-8 font-black shadow-lg shadow-primary/20">KB</div>
+              <h2 className="text-4xl font-black tracking-tighter text-foreground">Secure Access</h2>
+              <p className="text-muted-foreground font-medium text-sm">Deployment command center authentication.</p>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full overflow-hidden rounded-xl bg-primary px-4 py-4 text-sm font-bold text-primary-foreground shadow-2xl shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-primary/40 active:scale-[0.98] disabled:opacity-70"
-            >
-              <div className="relative z-10 flex items-center justify-center gap-2">
-                {loading ? (
-                  <>
-                    <div className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                    <span>VERIFYING...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>SIGN IN TO INFRAKB</span>
-                    <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </>
-                )}
-              </div>
-            </button>
-          </form>
+            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+              {error && (
+                <div className="rounded-xl bg-destructive/5 p-4 text-xs text-destructive border border-destructive/20 flex items-center gap-3 animate-shake font-bold uppercase tracking-wider">
+                  <span className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" />
+                  {error}
+                </div>
+              )}
+              
+              <div className="space-y-5">
+                <div className="space-y-2 group">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 group-focus-within:text-primary transition-colors ml-1">
+                    Identification / Email
+                  </label>
+                  <div className="relative">
+                    <input
+                      {...register('email')}
+                      type="email"
+                      className="w-full rounded-xl border border-border bg-muted/30 px-4 py-4 text-sm text-foreground placeholder-muted-foreground/30 focus:bg-background focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all duration-300"
+                      placeholder="operator@infrakb.local"
+                    />
+                  </div>
+                  {errors.email && (
+                    <p className="mt-1.5 text-[10px] text-destructive font-black uppercase tracking-tight ml-1">{errors.email.message}</p>
+                  )}
+                </div>
 
-          <div className="pt-10 border-t border-border/50">
-            <div className="flex items-center gap-4 justify-center">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/40">
-                System Status: All Operational
-              </p>
+                <div className="space-y-2 group">
+                  <div className="flex justify-between items-center ml-1">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 group-focus-within:text-primary transition-colors">
+                      Security / Password
+                    </label>
+                    <a href="#" className="text-[10px] font-black text-primary/60 hover:text-primary transition-colors uppercase tracking-widest">Reset?</a>
+                  </div>
+                  <input
+                    {...register('password')}
+                    type="password"
+                    className="w-full rounded-xl border border-border bg-muted/30 px-4 py-4 text-sm text-foreground placeholder-muted-foreground/30 focus:bg-background focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all duration-300"
+                    placeholder="••••••••"
+                  />
+                  {errors.password && (
+                    <p className="mt-1.5 text-[10px] text-destructive font-black uppercase tracking-tight ml-1">{errors.password.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="group relative w-full overflow-hidden rounded-xl bg-primary py-4 text-[11px] font-black uppercase tracking-[0.25em] text-primary-foreground shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-primary/40 active:scale-[0.97] disabled:opacity-70"
+              >
+                <div className="relative z-10 flex items-center justify-center gap-3">
+                  {loading ? (
+                    <>
+                      <div className="h-3 w-3 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                      <span>Verifying Identity...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Initialize Session</span>
+                      <svg className="h-3 w-3 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </>
+                  )}
+                </div>
+                {/* Subtle shine effect on button */}
+                <div className="absolute inset-0 w-1/2 h-full bg-white/10 skew-x-[-25deg] -translate-x-[150%] group-hover:translate-x-[250%] transition-transform duration-1000 ease-in-out" />
+              </button>
+            </form>
+
+            <div className="pt-8 border-t border-border/40 flex flex-col items-center gap-4">
+              <div className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-muted/50 border border-border/50">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                  Cluster Status: Online
+                </p>
+              </div>
             </div>
           </div>
+
+          {/* Decorative small boxes behind/under the main card */}
+          <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-primary/5 border border-primary/10 rounded-2xl -z-10 blur-sm" />
+          <div className="absolute -top-4 -left-4 w-16 h-16 bg-primary/5 border border-primary/10 rounded-xl -z-10 blur-sm" />
         </div>
+        
+        <p className="mt-12 text-center text-[10px] text-muted-foreground/40 font-black uppercase tracking-[0.3em]">
+          Internal Knowledge Network — v1.0.4
+        </p>
       </div>
     </div>
   );
