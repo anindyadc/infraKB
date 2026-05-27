@@ -1,14 +1,15 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getDoc } from '../api/docs.api';
 import { useUIStore } from '../store/ui.store';
 import { renderMarkdown } from '../lib/markdown';
-import { Edit2, Clock, User, Tag, Share2, Trash2, ChevronRight, Hash, Activity } from 'lucide-react';
+import { Edit2, Clock, User, Tag, Share2, Trash2, ChevronRight, Hash, Activity, Check } from 'lucide-react';
 import 'highlight.js/styles/github.css';
 
 export default function DocViewPage() {
   const { slug } = useParams();
+  const [isCopied, setIsCopied] = useState(false);
   const setSelectedDocId = useUIStore((state) => state.setSelectedDocId);
 
   const { data: doc, isLoading, error } = useQuery({
@@ -23,6 +24,12 @@ export default function DocViewPage() {
     }
     return () => setSelectedDocId(null);
   }, [doc, setSelectedDocId]);
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
 
   if (isLoading) return (
     <div className="flex flex-col items-center justify-center h-full opacity-30 animate-pulse">
@@ -64,8 +71,16 @@ export default function DocViewPage() {
             <span>Modify</span>
           </Link>
           <div className="w-px h-4 bg-border/50 mx-1" />
-          <button className="flex items-center justify-center h-9 w-9 rounded-xl border border-border bg-background text-muted-foreground hover:text-foreground hover:bg-accent transition-all active:scale-90">
-            <Share2 className="h-3.5 w-3.5" />
+          <button 
+            onClick={handleShare}
+            className={`flex items-center justify-center h-9 w-9 rounded-xl border transition-all active:scale-90 ${
+              isCopied 
+                ? 'border-emerald-500/50 bg-emerald-500/5 text-emerald-500' 
+                : 'border-border bg-background text-muted-foreground hover:text-foreground hover:bg-accent'
+            }`}
+            title="Share Document Link"
+          >
+            {isCopied ? <Check className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
           </button>
           <button className="flex items-center justify-center h-9 w-9 rounded-xl border border-destructive/20 bg-destructive/5 text-destructive/60 hover:text-white hover:bg-destructive transition-all active:scale-90">
             <Trash2 className="h-3.5 w-3.5" />
