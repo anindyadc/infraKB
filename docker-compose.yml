@@ -27,6 +27,8 @@ services:
       PORT: 4000
       NODE_ENV: development
       FRONTEND_URL: http://100.90.112.107:5173
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
       UPLOAD_DIR: /app/uploads
     volumes:
       - ./backend:/app

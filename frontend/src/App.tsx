@@ -2,11 +2,21 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/auth.store';
 import { useUIStore } from './store/ui.store';
+import { getMe } from './api/users.api';
 import LoginPage from './pages/LoginPage';
 import KBPage from './pages/KBPage';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isAuthenticated, isInitializing } = useAuthStore();
+  
+  if (isInitializing) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -15,6 +25,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   const theme = useUIStore((state) => state.theme);
+  const { setAuth, setInitializing, logout } = useAuthStore();
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -25,11 +36,27 @@ function App() {
         ? 'dark'
         : 'light';
       root.classList.add(systemTheme);
-      return;
+    } else {
+      root.classList.add(theme);
     }
-
-    root.classList.add(theme);
   }, [theme]);
+
+  // Initial Auth Check
+  useEffect(() => {
+    const bootstrap = async () => {
+      try {
+        const user = await getMe();
+        // If successful, the interceptor might have already updated the accessToken in the store
+        // but we need to ensure isAuthenticated is true
+        setAuth(user, useAuthStore.getState().accessToken || '');
+      } catch (err) {
+        logout();
+      } finally {
+        setInitializing(false);
+      }
+    };
+    bootstrap();
+  }, []);
 
   return (
     <BrowserRouter>

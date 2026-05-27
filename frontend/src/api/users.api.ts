@@ -1,5 +1,10 @@
 import client from './client';
 
+export const getMe = async () => {
+  const { data } = await client.get('/auth/me');
+  return data.data;
+};
+
 export const getUsers = async (params: { page?: number; limit?: number; role?: string; search?: string }) => {
   const { data } = await client.get('/users', { params });
   return data;
