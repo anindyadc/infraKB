@@ -8,8 +8,17 @@ export function useKeyboardShortcuts() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is typing in an input, textarea, or contentEditable
       const target = e.target as HTMLElement;
+
+      // Handle 'Esc' first because it's specifically used to exit inputs
+      if (e.key === 'Escape') {
+        if (target.id === 'global-search-input') {
+          target.blur();
+        }
+        return;
+      }
+
+      // Ignore other shortcuts if user is typing in an input, textarea, or contentEditable
       const isTyping = 
         target.tagName === 'INPUT' || 
         target.tagName === 'TEXTAREA' || 
@@ -32,14 +41,6 @@ export function useKeyboardShortcuts() {
         if (searchInput) {
           searchInput.focus();
           searchInput.select();
-        }
-      }
-
-      // 'Esc' to blur search
-      if (e.key === 'Escape') {
-        const activeElement = document.activeElement as HTMLElement;
-        if (activeElement.id === 'global-search-input') {
-          activeElement.blur();
         }
       }
     };
