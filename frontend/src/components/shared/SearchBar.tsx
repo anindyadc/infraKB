@@ -49,6 +49,7 @@ export default function SearchBar() {
       <form onSubmit={handleSearch} className="relative">
         <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/70" />
         <input
+          id="global-search-input"
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}

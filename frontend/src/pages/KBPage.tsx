@@ -7,8 +7,11 @@ import NewDocPage from './NewDocPage';
 import SearchPage from './SearchPage';
 import AdminPage from './AdminPage';
 import WelcomePage from './WelcomePage';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 export default function KBPage() {
+  useKeyboardShortcuts();
+
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
       <Sidebar />
