@@ -3,11 +3,18 @@ import slugify from 'slugify';
 
 export class DocsService {
   static async getAll(filters: any) {
-    const { page = 1, limit = 20, category, tag, author, status = 'PUBLISHED', pinned, sort = 'updatedAt', order = 'desc' } = filters;
+    const { page = 1, limit = 20, category, tag, author, status, pinned, sort = 'updatedAt', order = 'desc' } = filters;
     const pLimit = Math.min(parseInt(limit), 100);
     const pPage = Math.max(parseInt(page), 1);
 
-    const where: any = { status };
+    const where: any = {};
+    
+    if (status) {
+      where.status = status;
+    } else {
+      // By default show both internal published and public documents
+      where.status = { in: ['PUBLISHED', 'PUBLIC'] };
+    }
     if (category) where.category = { slug: category };
     if (tag) where.tags = { some: { tag: { slug: tag } } };
     if (author) where.authorId = parseInt(author);
