@@ -57,12 +57,17 @@ export class DocsService {
       throw new Error('DOC_IS_DRAFT');
     }
 
-    await prisma.document.update({
+    // Increment view count and return the updated document
+    return prisma.document.update({
       where: { id: doc.id },
       data: { viewCount: { increment: 1 } },
+      include: {
+        category: true,
+        author: { select: { id: true, username: true, displayName: true, avatarUrl: true } },
+        tags: { include: { tag: true } },
+        attachments: true,
+      },
     });
-
-    return doc;
   }
 
   static async create(data: any, authorId: number) {
