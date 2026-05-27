@@ -49,6 +49,7 @@ The seed script creates an initial administrator account:
 ## ✨ Key Features
 
 - **Distraction-free Workspace:** Collapse both the category sidebar and document list to maximize your writing and reading area (Shortcuts: `[` and `]`).
+- **Modern Login Experience:** A beautiful, responsive split-screen login page with theme support.
 - **Theme Switcher:** Polished **Day (Light)** and **Night (Dark)** modes with system preference detection.
 - **Fast Search:** High-performance full-text search across document titles and content.
 - **Markdown Editor:** Professional-grade editor with line wrapping, syntax highlighting, and toolbar.
