@@ -1,12 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { getDocs } from '../../api/docs.api';
 import { useUIStore } from '../../store/ui.store';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { PanelLeftClose } from 'lucide-react';
 
 export default function DocList() {
-  const { categorySlug } = useParams();
+  const location = useLocation();
   const { selectedDocId, toggleDocList } = useUIStore();
+  
+  // Extract category slug manually from path as DocList is outside the main Routes
+  const categoryMatch = location.pathname.match(/\/categories\/([^/]+)/);
+  const categorySlug = categoryMatch ? categoryMatch[1] : undefined;
   
   const { data, isLoading } = useQuery({
     queryKey: ['docs', categorySlug],
