@@ -6,28 +6,20 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-
     --primary: 142.1 70.6% 45.3%;
     --primary-foreground: 144.4 61.4% 10.5%;
-
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
@@ -37,28 +29,20 @@
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-
     --primary: 142.1 70.6% 45.3%;
     --primary-foreground: 144.4 61.4% 10.5%;
-
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
@@ -74,120 +58,82 @@
     font-feature-settings: "rlig" 1, "calt" 1, "kern" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Prevent vertical pull-to-refresh on mobile if we implement custom ones */
+    overscroll-behavior-y: none;
   }
 
-  /* Global Weight Spacing Refinements */
-  .font-bold {
-    @apply tracking-tight;
-  }
-  
-  .font-black {
-    @apply tracking-tighter;
-  }
+  .font-bold { @apply tracking-tight; }
+  .font-black { @apply tracking-tighter; }
+  .uppercase { @apply tracking-widest; }
+}
 
-  /* Universal Uppercase Spacing */
-  .uppercase {
-    @apply tracking-widest;
-  }
+/* App Shell Height — Mobile Chrome Fix */
+.app-shell {
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* iOS Safe Area Support */
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-inset-top {
+  padding-top: env(safe-area-inset-top);
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { @apply bg-muted-foreground/20 rounded-full border-2 border-transparent bg-clip-content; }
+::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/40; }
 
-::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/20 rounded-full border-2 border-transparent bg-clip-content;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/40;
-}
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* Premium Markdown Typography Overrides */
 .prose {
   @apply text-foreground/90 leading-relaxed;
 }
-
 .prose h1, .prose h2, .prose h3, .prose h4 {
   @apply text-foreground font-black tracking-tighter border-b border-border/40 pb-3 mb-6 mt-12;
 }
+.prose h1 { @apply text-3xl lg:text-6xl; }
+.prose h2 { @apply text-2xl lg:text-4xl; }
+.prose h3 { @apply text-xl lg:text-2xl; }
+.prose p { @apply mb-5 text-base leading-[1.8] tracking-normal; }
+.prose strong { @apply text-foreground font-extrabold tracking-tight; }
+.prose code { @apply text-primary font-mono bg-primary/5 px-2 py-0.5 rounded-lg border border-primary/10 font-bold before:content-[''] after:content-['']; }
+.prose a { @apply text-primary no-underline hover:underline font-bold decoration-primary/30 underline-offset-4; }
 
-.prose h1 { @apply text-3xl lg:text-4xl; }
-.prose h2 { @apply text-2xl lg:text-3xl; }
-.prose h3 { @apply text-2xl; }
-
-.prose p {
-  @apply mb-5 text-[16px] leading-[1.8] tracking-normal;
-}
-
-.prose strong {
-  @apply text-foreground font-extrabold tracking-tight;
-}
-
-.prose code {
-  @apply text-primary font-mono bg-primary/5 px-2 py-0.5 rounded-lg border border-primary/10 font-bold before:content-[''] after:content-[''];
-}
-
-.prose a {
-  @apply text-primary no-underline hover:underline font-bold decoration-primary/30 underline-offset-4;
-}
-
-/* Monospace Font Stack - Premium Standard */
+/* Monospace Font Stack */
 code, pre, .font-mono {
   font-family: "JetBrains Mono", "Fira Code", "IBM Plex Mono", "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
   font-variant-ligatures: contextual;
 }
 
-/* Reset Prose for Redesigned Code Blocks */
-.prose pre {
-  @apply bg-transparent border-none shadow-none;
-}
-
-.prose pre code {
-  @apply bg-transparent border-none text-inherit font-normal;
-}
-
-.prose code::before, .prose code::after {
-  content: none !important;
-}
-
-.prose ul, .prose ol {
-  @apply my-6 space-y-3;
-}
-
+/* Reset Prose for Code Blocks */
+.prose pre { @apply bg-transparent border-none shadow-none; }
+.prose pre code { @apply bg-transparent border-none text-inherit font-normal; }
+.prose code::before, .prose code::after { content: none !important; }
+.prose ul, .prose ol { @apply my-6 space-y-3; }
 .prose ul { @apply list-disc list-outside ml-6; }
 .prose ol { @apply list-decimal list-outside ml-6; }
 
-/* Premium High-Contrast Syntax Highlighting */
+/* Syntax Highlighting */
 .hljs-keyword, .hljs-selector-tag, .hljs-subst { @apply text-[#ff7b72] font-bold; }
 .hljs-string, .hljs-doctag, .hljs-regexp { @apply text-[#a5d6ff]; }
 .hljs-title, .hljs-section, .hljs-selector-id { @apply text-[#ffa657] font-bold; }
 .hljs-variable, .hljs-template-variable { @apply text-[#79c0ff]; }
-.hljs-type, .hljs-selector-class, .hljs-link { @apply text-[#ff7b72]; }
 .hljs-comment, .hljs-quote { @apply text-zinc-500 italic; }
-.hljs-number, .hljs-literal { @apply text-[#79c0ff]; }
 .hljs-params, .hljs-attr, .hljs-attribute { @apply text-zinc-100; }
 .hljs-built_in, .hljs-bullet { @apply text-[#ffa657]; }
-.hljs-meta { @apply text-zinc-400; }
-.hljs-symbol, .hljs-code { @apply text-[#79c0ff]; }
 
-/* Specific fixes for Shell/Bash contrast */
-.hljs-meta .hljs-keyword { @apply text-[#ff7b72]; }
-.language-bash .hljs-built_in { @apply text-[#f0883e]; }
-.language-bash .hljs-string { @apply text-[#7ee787]; }
-.language-bash .hljs-variable { @apply text-[#79c0ff]; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+/* Tap Highlight Removal */
+button, a { -webkit-tap-highlight-color: transparent; }
