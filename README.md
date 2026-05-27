@@ -41,7 +41,7 @@ The seed script creates an initial administrator account:
 ## 🛠 Tech Stack
 
 - **Backend:** Node.js (Express), Prisma ORM, MySQL 8
-- **Frontend:** React 18, Vite, TypeScript, Tailwind CSS
+- **Frontend:** React 18, Vite, TypeScript, Tailwind CSS (with Typography plugin)
 - **Editor:** CodeMirror 6 (with Markdown and syntax highlighting)
 - **State Management:** Zustand, TanStack Query v5
 - **Infrastructure:** Docker, Docker Compose, Nginx
@@ -49,11 +49,12 @@ The seed script creates an initial administrator account:
 ## ✨ Key Features
 
 - **Distraction-free Workspace:** Collapse both the category sidebar and document list to maximize your writing and reading area (Shortcuts: `[` and `]`).
-- **Modern Login Experience:** A beautiful, responsive split-screen login page with theme support.
+- **Premium Markdown Experience:** Industry-standard rendering with Mac-style code blocks, JetBrains Mono typography, and high-performance syntax highlighting.
+- **Improved Navigation:** Real-time category filtering and intuitive document organization.
+- **Modern Login Experience:** A beautiful, responsive split-screen login page with premium aesthetics.
 - **Theme Switcher:** Polished **Day (Light)** and **Night (Dark)** modes with system preference detection.
 - **Fast Search:** High-performance full-text search across document titles and content.
 - **Markdown Editor:** Professional-grade editor with line wrapping, syntax highlighting, and toolbar.
-- **Rich Rendering:** Support for code blocks, callouts, and YouTube embeds.
 - **Version Control:** Automatic snapshots created before every document update.
 - **Attachments:** Secure file and image uploads integrated into the editing flow.
 - **Admin Dashboard:** Overview of system statistics and user management.
