@@ -93,6 +93,39 @@
   @apply bg-muted-foreground/40;
 }
 
+/* Markdown Typography Overrides */
+.prose {
+  @apply text-foreground/90;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  @apply text-foreground font-bold tracking-tight border-b border-border/50 pb-2 mb-4 mt-8;
+}
+
+.prose h1 { @apply text-3xl; }
+.prose h2 { @apply text-2xl; }
+.prose h3 { @apply text-xl; }
+
+.prose strong {
+  @apply text-foreground font-bold;
+}
+
+.prose code {
+  @apply text-primary font-mono bg-muted/50 px-1.5 py-0.5 rounded border border-border/50 before:content-[''] after:content-[''];
+}
+
+.prose a {
+  @apply text-primary no-underline hover:underline font-medium;
+}
+
+.prose ul {
+  @apply list-disc list-inside;
+}
+
+.prose ol {
+  @apply list-decimal list-inside;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
