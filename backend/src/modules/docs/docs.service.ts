@@ -70,6 +70,38 @@ export class DocsService {
     });
   }
 
+  static async getPublicByIdOrSlug(idOrSlug: string) {
+    const isId = !isNaN(parseInt(idOrSlug));
+    const doc = await prisma.document.findFirst({
+      where: {
+        AND: [
+          isId ? { id: parseInt(idOrSlug) } : { slug: idOrSlug },
+          { status: 'PUBLIC' }
+        ]
+      },
+      include: {
+        category: true,
+        author: { select: { id: true, username: true, displayName: true, avatarUrl: true } },
+        tags: { include: { tag: true } },
+        attachments: true,
+      },
+    });
+
+    if (!doc) return null;
+
+    // Increment view count for public views too
+    return prisma.document.update({
+      where: { id: doc.id },
+      data: { viewCount: { increment: 1 } },
+      include: {
+        category: true,
+        author: { select: { id: true, username: true, displayName: true, avatarUrl: true } },
+        tags: { include: { tag: true } },
+        attachments: true,
+      },
+    });
+  }
+
   static async create(data: any, authorId: number) {
     const slug = await this.generateSlug(data.title);
     const excerpt = this.generateExcerpt(data.content);

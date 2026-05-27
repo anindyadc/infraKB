@@ -1,21 +1,30 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { getDoc } from '../api/docs.api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getDoc, updateDoc } from '../api/docs.api';
 import { useUIStore } from '../store/ui.store';
 import { renderMarkdown } from '../lib/markdown';
-import { Edit2, Clock, User, Tag, Share2, Trash2, ChevronRight, Hash, Activity, Check } from 'lucide-react';
+import { Edit2, Clock, User, Tag, Share2, Trash2, ChevronRight, Hash, Activity, Check, Globe, Lock } from 'lucide-react';
 import 'highlight.js/styles/github.css';
 
 export default function DocViewPage() {
   const { slug } = useParams();
+  const queryClient = useQueryClient();
   const [isCopied, setIsCopied] = useState(false);
+  const [isLinkCopied, setIsLinkCopied] = useState(false);
   const setSelectedDocId = useUIStore((state) => state.setSelectedDocId);
 
   const { data: doc, isLoading, error } = useQuery({
     queryKey: ['doc', slug],
     queryFn: () => getDoc(slug!),
     enabled: !!slug,
+  });
+
+  const mutation = useMutation({
+    mutationFn: (newStatus: string) => updateDoc(doc.id, { status: newStatus }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['doc', slug] });
+    },
   });
 
   useEffect(() => {
@@ -29,6 +38,13 @@ export default function DocViewPage() {
     navigator.clipboard.writeText(window.location.href);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  const handleCopyPublicLink = () => {
+    const publicUrl = `${window.location.origin}/share/${doc.slug}`;
+    navigator.clipboard.writeText(publicUrl);
+    setIsLinkCopied(true);
+    setTimeout(() => setIsLinkCopied(false), 2000);
   };
 
   if (isLoading) return (
@@ -88,14 +104,39 @@ export default function DocViewPage() {
         </div>
       </div>
 
+      {/* Public Link Banner */}
+      {doc.status === 'PUBLIC' && (
+        <div className="bg-emerald-500/10 border-b border-emerald-500/20 px-8 py-2 flex items-center justify-between animate-in slide-in-from-top duration-500">
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+            <Globe className="h-3 w-3" />
+            <span>Public Access Enabled</span>
+          </div>
+          <button 
+            onClick={handleCopyPublicLink}
+            className="text-[9px] font-black uppercase tracking-widest bg-emerald-500 text-white px-3 py-1 rounded-lg hover:bg-emerald-600 transition-all active:scale-95 shadow-lg shadow-emerald-500/20"
+          >
+            {isLinkCopied ? 'Link Copied!' : 'Copy Public Link'}
+          </button>
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-primary/10">
         <div className="mx-auto max-w-5xl px-8 py-16 lg:px-16">
           {/* Document Title Section */}
           <div className="space-y-6 mb-12">
             <div className="flex items-center gap-3">
-              <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[9px] font-black uppercase tracking-widest border border-primary/20">
-                Live Document
-              </span>
+              <button 
+                onClick={() => mutation.mutate(doc.status === 'PUBLIC' ? 'PUBLISHED' : 'PUBLIC')}
+                disabled={mutation.isPending}
+                className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border transition-all flex items-center gap-2 ${
+                  doc.status === 'PUBLIC' 
+                    ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20' 
+                    : 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20'
+                }`}
+              >
+                {doc.status === 'PUBLIC' ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+                {mutation.isPending ? 'Syncing...' : (doc.status === 'PUBLIC' ? 'Public' : 'Private')}
+              </button>
               <div className="h-px flex-1 bg-gradient-to-r from-border/50 to-transparent" />
             </div>
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-foreground leading-tight">

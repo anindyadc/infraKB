@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { DocsService } from './docs.service.js';
 import { createDocSchema, updateDocSchema } from './docs.schema.js';
 import { AuthRequest } from '../../middleware/auth.js';
@@ -19,6 +19,18 @@ export class DocsController {
     } catch (error: any) {
       const status = error.message === 'DOC_IS_DRAFT' ? 403 : 400;
       return res.status(status).json({ success: false, error: { code: error.message, message: error.message } });
+    }
+  }
+
+  static async getPublic(req: Request, res: Response) {
+    try {
+      const doc = await DocsService.getPublicByIdOrSlug(req.params.idOrSlug);
+      if (!doc) {
+        return res.status(404).json({ success: false, error: { code: 'DOC_NOT_FOUND', message: 'Document not found or not public' } });
+      }
+      return res.json({ success: true, data: doc });
+    } catch (error: any) {
+      return res.status(404).json({ success: false, error: { code: 'DOC_NOT_FOUND', message: error.message } });
     }
   }
 

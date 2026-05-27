@@ -5,6 +5,7 @@ import { useUIStore } from './store/ui.store';
 import { getMe } from './api/users.api';
 import LoginPage from './pages/LoginPage';
 import KBPage from './pages/KBPage';
+import PublicDocPage from './pages/PublicDocPage';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isInitializing } = useAuthStore();
@@ -96,6 +97,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/share/:slug" element={<PublicDocPage />} />
         <Route
           path="/*"
           element={

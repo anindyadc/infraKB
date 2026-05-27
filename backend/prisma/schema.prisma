@@ -105,6 +105,7 @@ model Document {
 enum DocStatus {
   DRAFT      // only visible to the author and admins
   PUBLISHED  // visible to all authenticated users
+  PUBLIC     // visible to anyone with the link
   ARCHIVED   // hidden from lists but accessible via direct link
 }
 
