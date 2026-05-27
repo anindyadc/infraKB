@@ -15,11 +15,10 @@ export const renderMarkdown = (content: string): string => {
     const highlighted = hljs.highlight(code, { language: validLanguage }).value;
     
     return `
-      <div class="code-block-container my-6 overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117] shadow-2xl transition-all duration-300">
+      <div class="code-block-container my-8 overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117] shadow-2xl transition-all duration-300 h-auto">
         <!-- Top Bar / Header -->
         <div class="flex items-center justify-between border-b border-white/[0.05] bg-white/[0.03] px-6 py-3">
           <div class="flex items-center gap-3">
-            <!-- Mac-style dots (optional brand touch) -->
             <div class="flex gap-1.5">
               <div class="h-2.5 w-2.5 rounded-full bg-white/10"></div>
               <div class="h-2.5 w-2.5 rounded-full bg-white/10"></div>
@@ -29,9 +28,9 @@ export const renderMarkdown = (content: string): string => {
               ${validLanguage}
             </span>
           </div>
-          
+
           <button 
-            class="copy-btn group flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1 font-mono text-[10px] font-bold tracking-tight text-zinc-400 hover:border-white/20 hover:bg-white/10 hover:text-white transition-all active:scale-95"
+            class="copy-btn group flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-[10px] font-bold tracking-tight text-zinc-400 hover:border-white/20 hover:bg-white/10 hover:text-white transition-all active:scale-95"
             onclick="navigator.clipboard.writeText(\`${code.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)"
           >
             <span class="group-hover:hidden">COPY</span>
@@ -39,8 +38,8 @@ export const renderMarkdown = (content: string): string => {
           </button>
         </div>
 
-        <!-- Code Content Area -->
-        <pre class="scrollbar-thin scrollbar-thumb-white/10 overflow-x-auto text-[14px] leading-[1.7] text-zinc-100 selection:bg-primary/30 py-4">
+        <!-- Code Content Area: Dynamic Height -->
+        <pre class="scrollbar-thin scrollbar-thumb-white/10 overflow-x-auto text-[14px] leading-[1.7] text-zinc-100 selection:bg-primary/30 py-5">
           <code class="hljs language-${validLanguage} font-mono inline-block min-w-full px-6">${highlighted}</code>
         </pre>
       </div>
