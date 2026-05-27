@@ -6,11 +6,12 @@ import { Search, Tag, Folder } from 'lucide-react';
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
+  const tag = searchParams.get('tag') || '';
 
   const { data, isLoading } = useQuery({
-    queryKey: ['search', query],
-    queryFn: () => searchDocs({ q: query }),
-    enabled: !!query,
+    queryKey: ['search', query, tag],
+    queryFn: () => searchDocs({ q: query, tag }),
+    enabled: !!query || !!tag,
   });
 
   return (
@@ -18,10 +19,14 @@ export default function SearchPage() {
       <div className="border-b border-border bg-card px-8 py-6">
         <h1 className="flex items-center gap-3 text-2xl font-bold text-foreground">
           <Search className="h-6 w-6 text-primary" />
-          <span>Search Results</span>
+          <span>Registry Search</span>
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Showing results for <span className="text-primary font-bold">"{query}"</span>
+        <p className="mt-1 text-sm text-muted-foreground font-medium uppercase tracking-widest opacity-60">
+          {tag ? (
+            <>Filtering by tag: <span className="text-primary font-black">#{tag.toUpperCase()}</span></>
+          ) : (
+            <>Search results for: <span className="text-primary font-black">"{query.toUpperCase()}"</span></>
+          )}
         </p>
       </div>
 

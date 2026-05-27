@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '../../api/categories.api';
+import { getTags } from '../../api/tags.api';
 import { useAuthStore } from '../../store/auth.store';
 import { useUIStore } from '../../store/ui.store';
-import { LayoutGrid, Plus, LogOut, PanelLeftClose, HardDrive, ShieldCheck } from 'lucide-react';
+import { LayoutGrid, Plus, LogOut, PanelLeftClose, HardDrive, ShieldCheck, Hash } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import SearchBar from '../shared/SearchBar';
 import ThemeToggle from '../shared/ThemeToggle';
@@ -11,9 +12,15 @@ export default function Sidebar() {
   const { user, logout } = useAuthStore();
   const { toggleSidebar } = useUIStore();
   const location = useLocation();
-  const { data: categories, isLoading } = useQuery({
+  
+  const { data: categories, isLoading: catsLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
+  });
+
+  const { data: tags, isLoading: tagsLoading } = useQuery({
+    queryKey: ['tags'],
+    queryFn: getTags,
   });
 
   const isActive = (path: string) => location.pathname === path;
@@ -26,7 +33,7 @@ export default function Sidebar() {
       <div className="flex flex-col p-5 border-b border-border/50">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-black shadow-lg shadow-primary/20 ring-1 ring-white/10">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-black shadow-lg shadow-primary/20 ring-1 ring-white/20">
               KB
             </div>
             <div className="flex flex-col">
@@ -76,7 +83,7 @@ export default function Sidebar() {
         <div>
           <h3 className="px-4 text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 mb-4">Categories</h3>
           <nav className="space-y-1">
-            {isLoading ? (
+            {catsLoading ? (
               <div className="px-4 py-2 space-y-3">
                 <div className="h-4 bg-muted/50 rounded animate-pulse w-3/4" />
                 <div className="h-4 bg-muted/50 rounded animate-pulse w-1/2" />
@@ -87,12 +94,34 @@ export default function Sidebar() {
                   <Link to={`/categories/${cat.slug}`} className={`flex w-full items-center gap-3 rounded-xl px-4 py-2 text-sm font-bold transition-all ${isActive(`/categories/${cat.slug}`) ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}>
                     <span className="w-4 text-center grayscale brightness-125 group-hover:grayscale-0">{cat.icon || '📁'}</span>
                     <span>{cat.name}</span>
-                    <span className="ml-auto font-mono text-[9px] text-muted-foreground/50">{cat._count.docs}</span>
+                    <span className="ml-auto font-mono text-[9px] text-muted-foreground/50">{cat._count?.docs || 0}</span>
                   </Link>
                 </div>
               ))
             )}
           </nav>
+        </div>
+
+        <div>
+          <h3 className="px-4 text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/40 mb-4 flex items-center gap-2">
+            <Hash className="h-3 w-3" />
+            Tags
+          </h3>
+          <div className="px-2 flex flex-wrap gap-2">
+            {tagsLoading ? (
+              <div className="h-4 bg-muted/50 rounded animate-pulse w-full mx-2" />
+            ) : (
+              tags?.slice(0, 12).map((tag: any) => (
+                <Link 
+                  key={tag.id} 
+                  to={`/search?tag=${tag.slug}`}
+                  className="px-2.5 py-1 rounded-lg bg-muted/30 border border-border/50 text-[10px] font-bold text-muted-foreground hover:border-primary/30 hover:text-primary transition-all uppercase tracking-widest"
+                >
+                  {tag.name}
+                </Link>
+              ))
+            )}
+          </div>
         </div>
       </div>
 

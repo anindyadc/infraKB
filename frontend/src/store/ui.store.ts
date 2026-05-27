@@ -19,6 +19,7 @@ interface UIState {
   isSidebarDrawerOpen: boolean;
   mobilePanel: MobilePanel;
   isSearchOverlayOpen: boolean;
+  isHelpModalOpen: boolean;
   editorTab: 'edit' | 'preview';
 
   // Actions
@@ -32,6 +33,7 @@ interface UIState {
   setSidebarDrawerOpen: (open: boolean) => void;
   setMobilePanel: (panel: MobilePanel) => void;
   setSearchOverlayOpen: (open: boolean) => void;
+  setHelpModalOpen: (open: boolean) => void;
   setEditorTab: (tab: 'edit' | 'preview') => void;
 }
 
@@ -46,6 +48,7 @@ export const useUIStore = create<UIState>((set) => ({
   isSidebarDrawerOpen: false,
   mobilePanel: 'list',
   isSearchOverlayOpen: false,
+  isHelpModalOpen: false,
   editorTab: 'edit',
 
   setSelectedCategorySlug: (slug) => set({ selectedCategorySlug: slug }),
@@ -64,5 +67,6 @@ export const useUIStore = create<UIState>((set) => ({
   setSidebarDrawerOpen: (open) => set({ isSidebarDrawerOpen: open }),
   setMobilePanel: (panel) => set({ mobilePanel: panel }),
   setSearchOverlayOpen: (open) => set({ isSearchOverlayOpen: open }),
+  setHelpModalOpen: (open) => set({ isHelpModalOpen: open }),
   setEditorTab: (tab) => set({ editorTab: tab }),
 }));

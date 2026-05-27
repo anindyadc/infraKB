@@ -1,5 +1,5 @@
 import { useUIStore } from '../../store/ui.store';
-import { X, Folder, Sparkles } from 'lucide-react';
+import { X, Folder, Sparkles, Hash } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '../../api/categories.api';
 
@@ -10,6 +10,8 @@ interface NewDocBottomSheetProps {
   onTitleChange: (val: string) => void;
   categoryId: number | '';
   onCategoryChange: (id: number) => void;
+  tags: string;
+  onTagsChange: (val: string) => void;
   onSave: () => void;
   isPending: boolean;
 }
@@ -21,6 +23,8 @@ export default function NewDocBottomSheet({
   onTitleChange,
   categoryId,
   onCategoryChange,
+  tags,
+  onTagsChange,
   onSave,
   isPending
 }: NewDocBottomSheetProps) {
@@ -98,6 +102,20 @@ export default function NewDocBottomSheet({
                   </optgroup>
                 ))}
               </select>
+            </div>
+
+            <div className="space-y-2 group">
+              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 ml-1 flex items-center gap-2">
+                <Hash className="h-3 w-3" />
+                Tag Classification
+              </label>
+              <input 
+                type="text" 
+                value={tags}
+                onChange={(e) => onTagsChange(e.target.value)}
+                placeholder="linux, shell, infrastructure"
+                className="w-full bg-muted/30 border border-border rounded-2xl px-5 py-4 text-base font-bold text-foreground outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/50 transition-all"
+              />
             </div>
           </div>
 

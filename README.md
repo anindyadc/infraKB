@@ -48,17 +48,15 @@ The seed script creates an initial administrator account:
 
 ## ✨ Key Features
 
-- **Mobile-Friendly & PWA:** Fully responsive UI optimized for mobile, tablet, and desktop. Installable as a standalone app.
 - **Command Center Dashboard:** A premium, high-performance dashboard featuring real-time system metrics, node status, and intuitive navigation.
+- **Dynamic Tagging System:** Categorize runbooks with flexible tags for advanced filtering and discovery.
+- **Category Hierarchy Management:** Full administrative control over knowledge hierarchies and documentation structure.
 - **Distraction-free Workspace:** Collapse both the category sidebar and document list to maximize your writing and reading area (Shortcuts: `[` and `]`).
+- **Global Keyboard Shortcuts:** Efficient navigation via high-performance shortcuts (press `?` for full map).
 - **User & Credential Management:** Full administrative control over operator accounts, roles (RBAC), and secure password resets.
-- **External Public Sharing:** Generate secure, read-only public links for runbooks to collaborate with external stakeholders without requiring an account.
-- **Premium Markdown Experience:** Industry-standard rendering with Mac-style code blocks, JetBrains Mono typography, robust "One-Click Copy", and high-performance syntax highlighting.
-- **Advanced Typography:** Optimized letter-spacing and font-weights for long-form technical reading and high-contrast accessibility.
-- **Improved Navigation:** Real-time category filtering and intuitive document organization.
-- **Premium Login Experience:** A "decorated" command-center style login page featuring glassmorphism, deep shadows, and advanced animations.
-- **Theme Switcher:** Polished **Day (Light)** and **Night (Dark)** modes with system preference detection and persistent sessions (up to 7 days).
-- **Fast Search:** High-performance full-text search across document titles and content.
+- **External Public Sharing:** Generate secure, read-only public links for runbooks to collaborate with external stakeholders.
+- **Premium Markdown Experience:** Industry-standard rendering with Mac-style code blocks, JetBrains Mono typography, and one-click copy.
+- **Mobile-Friendly & PWA:** Fully responsive UI installable as a standalone application.
 
 ## 📂 Project Structure
 

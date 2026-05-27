@@ -10,6 +10,7 @@ import WelcomePage from './WelcomePage';
 import MobileTopbar from '../components/layout/MobileTopbar';
 import BottomNav from '../components/layout/BottomNav';
 import SearchOverlay from '../components/layout/SearchOverlay';
+import ShortcutHelpModal from '../components/layout/ShortcutHelpModal';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useUIStore } from '../store/ui.store';
 import { PanelLeft, X } from 'lucide-react';
@@ -58,6 +59,7 @@ export default function KBPage() {
       <MobileTopbar />
       <BottomNav />
       <SearchOverlay />
+      <ShortcutHelpModal />
 
       {/* 3. Document List — Hidden on mobile when a doc is active */}
       <div className={`
@@ -94,7 +96,14 @@ export default function KBPage() {
           )}
         </div>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden relative selection:bg-primary/20">
+          {/* Background Decorative Elements */}
+          <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+            <div className="absolute top-[-10%] left-[-5%] w-[40rem] h-[40rem] bg-primary/5 rounded-full blur-[120px]" />
+            <div className="absolute bottom-[-10%] right-[-5%] w-[35rem] h-[35rem] bg-primary/5 rounded-full blur-[100px]" />
+            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay" />
+          </div>
+
           <Routes>
             <Route path="/" element={<WelcomePage />} />
             <Route path="/categories/:categorySlug" element={<WelcomePage />} />

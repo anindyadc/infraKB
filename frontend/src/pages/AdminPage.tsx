@@ -2,10 +2,14 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getStats } from '../api/stats.api';
 import { getUsers, updateUser, createUser, deleteUser } from '../api/users.api';
-import { Users, Activity, BarChart3, ShieldCheck, Cpu, Database, Network, Server, Plus, Edit2, Trash2, X, Check, Key } from 'lucide-react';
+import { getCategories, createCategory, updateCategory, deleteCategory } from '../api/categories.api';
+import { 
+  Users, Activity, BarChart3, ShieldCheck, Cpu, Database, Network, 
+  Server, Plus, Edit2, Trash2, X, Check, Key, Folder, Sparkles, Hash
+} from 'lucide-react';
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'activity'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'categories' | 'activity'>('stats');
 
   return (
     <div className="flex h-full flex-col bg-background animate-in fade-in duration-700">
@@ -20,7 +24,7 @@ export default function AdminPage() {
           <span>Control Panel</span>
         </h1>
         
-        <div className="mt-10 flex gap-2 p-1.5 w-fit rounded-2xl bg-muted/30 border border-border/50 backdrop-blur-sm">
+        <div className="mt-10 flex flex-wrap gap-2 p-1.5 w-fit rounded-2xl bg-muted/30 border border-border/50 backdrop-blur-sm">
           <TabButton
             active={activeTab === 'stats'}
             onClick={() => setActiveTab('stats')}
@@ -32,6 +36,12 @@ export default function AdminPage() {
             onClick={() => setActiveTab('users')}
             icon={<Users className="h-4 w-4" />}
             label="Operators"
+          />
+          <TabButton
+            active={activeTab === 'categories'}
+            onClick={() => setActiveTab('categories')}
+            icon={<Folder className="h-4 w-4" />}
+            label="Registry Structure"
           />
           <TabButton
             active={activeTab === 'activity'}
@@ -46,6 +56,7 @@ export default function AdminPage() {
         <div className="mx-auto max-w-7xl">
           {activeTab === 'stats' && <StatsDashboard />}
           {activeTab === 'users' && <UserManagement />}
+          {activeTab === 'categories' && <CategoryManagement />}
           {activeTab === 'activity' && <ActivityLog />}
         </div>
       </div>
@@ -83,7 +94,6 @@ function StatsDashboard() {
 
   return (
     <div className="space-y-12">
-      {/* Top Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={Database} label="Knowledge Nodes" value={stats.totalDocs} color="text-primary" />
         <StatCard icon={Server} label="Production Sync" value={stats.publishedDocs} />
@@ -91,7 +101,6 @@ function StatsDashboard() {
         <StatCard icon={Network} label="Network Clients" value={stats.totalUsers} />
       </div>
       
-      {/* Detailed View */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div className="rounded-[2rem] border border-border/50 bg-card/40 p-8 shadow-xl backdrop-blur-sm">
           <h3 className="mb-8 text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/40 border-b border-border/50 pb-4 flex items-center gap-3">
@@ -253,7 +262,6 @@ function UserManagement() {
         </table>
       </div>
 
-      {/* User Modal (Add/Edit) */}
       {(showAddModal || editingUser) && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="w-full max-w-md bg-card border border-border rounded-[2rem] p-10 shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-500">
@@ -319,6 +327,158 @@ function UserManagement() {
               >
                 <Key className="h-3 w-3" />
                 <span>{showAddModal ? 'Initialize Account' : 'Commit Credentials'}</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CategoryManagement() {
+  const queryClient = useQueryClient();
+  const [editingCategory, setEditingCategory] = useState<any>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  const { data: categories, isLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories,
+  });
+
+  const createMutation = useMutation({
+    mutationFn: createCategory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      setShowAddModal(false);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: any) => updateCategory(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      setEditingCategory(null);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteCategory,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['categories'] }),
+  });
+
+  if (isLoading) return <div className="text-[10px] font-black uppercase tracking-widest opacity-30">Scanning Registry Structure...</div>;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/40">Knowledge Hierarchies</h3>
+        <button 
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          <span>New Hierarchy</span>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {categories?.map((cat: any) => (
+          <div key={cat.id} className="group relative rounded-[2rem] border border-border/50 bg-card/40 p-8 shadow-xl backdrop-blur-sm hover:border-primary/30 transition-all overflow-hidden">
+             {/* Decorative Background Icon */}
+             <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <span className="text-8xl">{cat.icon || '📁'}</span>
+             </div>
+
+             <div className="flex justify-between items-start mb-6">
+                <div className="h-12 w-12 rounded-2xl bg-muted/50 flex items-center justify-center text-2xl shadow-inner">
+                   {cat.icon || '📁'}
+                </div>
+                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                   <button onClick={() => setEditingCategory(cat)} className="p-2 rounded-lg bg-background border border-border hover:text-primary transition-all">
+                      <Edit2 className="h-3.5 w-3.5" />
+                   </button>
+                   <button onClick={() => confirm('Purge this hierarchy node?') && deleteMutation.mutate(cat.id)} className="p-2 rounded-lg bg-background border border-border hover:text-destructive transition-all">
+                      <Trash2 className="h-3.5 w-3.5" />
+                   </button>
+                </div>
+             </div>
+
+             <h4 className="text-lg font-black uppercase tracking-tighter text-foreground mb-1">{cat.name}</h4>
+             <p className="text-[10px] font-mono font-bold text-muted-foreground/50 mb-4 uppercase tracking-widest">path: /{cat.slug}</p>
+             
+             <div className="flex items-center gap-4 border-t border-border/30 pt-4">
+                <div className="flex flex-col">
+                   <span className="text-xl font-black text-foreground tabular-nums">{cat._count?.docs || 0}</span>
+                   <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40">Entities</span>
+                </div>
+                <div className="w-px h-6 bg-border/50" />
+                <div className="flex flex-col">
+                   <span className="text-xl font-black text-foreground tabular-nums">{cat.children?.length || 0}</span>
+                   <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40">Sub-Nodes</span>
+                </div>
+             </div>
+          </div>
+        ))}
+      </div>
+
+      {(showAddModal || editingCategory) && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-md bg-card border border-border rounded-[2rem] p-10 shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-500">
+            <div className="flex justify-between items-center mb-8">
+               <h4 className="text-xl font-black uppercase tracking-tighter text-foreground">
+                 {showAddModal ? 'Initialize Hierarchy' : 'Modify Hierarchy'}
+               </h4>
+               <button onClick={() => { setShowAddModal(false); setEditingCategory(null); }} className="text-muted-foreground hover:text-foreground">
+                 <X className="h-5 w-5" />
+               </button>
+            </div>
+            
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const data = Object.fromEntries(formData.entries());
+              if (showAddModal) {
+                createMutation.mutate(data as any);
+              } else {
+                updateMutation.mutate({ id: editingCategory.id, data: data as any });
+              }
+            }} className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Name</label>
+                  <input name="name" defaultValue={editingCategory?.name} required placeholder="e.g. INFRASTRUCTURE" className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all font-bold" />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Slug (Path)</label>
+                    <input name="slug" defaultValue={editingCategory?.slug} placeholder="e.g. infra" className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all font-mono text-xs" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Icon (Emoji)</label>
+                    <input name="icon" defaultValue={editingCategory?.icon} placeholder="e.g. 🏗️" className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all text-center" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Parent Hierarchy</label>
+                  <select name="parentId" defaultValue={editingCategory?.parentId || ""} className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all appearance-none font-bold uppercase">
+                    <option value="">/ NONE (TOP LEVEL)</option>
+                    {categories?.filter((c: any) => c.id !== editingCategory?.id).map((c: any) => (
+                      <option key={c.id} value={c.id}>/ {c.name.toUpperCase()}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={createMutation.isPending || updateMutation.isPending}
+                className="w-full rounded-xl bg-primary py-4 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
+              >
+                <Folder className="h-3 w-3" />
+                <span>{showAddModal ? 'Initialize hierarchy' : 'Commit Changes'}</span>
               </button>
             </form>
           </div>

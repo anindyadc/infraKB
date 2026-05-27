@@ -6,25 +6,41 @@ import { useUIStore } from '../store/ui.store';
 export function useKeyboardShortcuts() {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const { toggleSidebar, toggleDocList } = useUIStore();
+  const { toggleSidebar, toggleDocList, isHelpModalOpen, setHelpModalOpen } = useUIStore();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
 
-      // Handle 'Esc' first because it's specifically used to exit inputs
+      // Handle 'Esc' first because it's specifically used to exit inputs/modals
       if (e.key === 'Escape') {
+        if (isHelpModalOpen) {
+          setHelpModalOpen(false);
+          return;
+        }
         if (target.id === 'global-search-input') {
           target.blur();
         }
         return;
       }
 
-      // Ignore other shortcuts if user is typing in an input, textarea, or contentEditable
+      // '?' for Help Modal (works even when typing if modifier used, but standard docs say works only when not typing)
+      if (e.key === '?' && !isHelpModalOpen) {
+         // Check if user is typing to avoid interrupting
+         const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable || target.closest('.cm-editor');
+         if (!isTyping) {
+            e.preventDefault();
+            setHelpModalOpen(true);
+            return;
+         }
+      }
+
+      // Ignore other shortcuts if user is typing in an input, textarea, contentEditable, or CodeMirror
       const isTyping = 
         target.tagName === 'INPUT' || 
         target.tagName === 'TEXTAREA' || 
-        target.isContentEditable;
+        target.isContentEditable ||
+        target.closest('.cm-editor');
 
       if (isTyping) return;
 
@@ -47,13 +63,13 @@ export function useKeyboardShortcuts() {
       }
 
       // '[' for toggle sidebar
-      if (e.key === '[') {
+      if (e.key === '[' || (e.altKey && key === '[')) {
         e.preventDefault();
         toggleSidebar();
       }
 
       // ']' for toggle doc list
-      if (e.key === ']') {
+      if (e.key === ']' || (e.altKey && key === ']')) {
         e.preventDefault();
         toggleDocList();
       }
@@ -61,5 +77,5 @@ export function useKeyboardShortcuts() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [navigate, user]);
+  }, [navigate, user, isHelpModalOpen, setHelpModalOpen, toggleSidebar, toggleDocList]);
 }

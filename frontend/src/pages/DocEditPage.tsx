@@ -5,7 +5,7 @@ import { getDoc, updateDoc } from '../api/docs.api';
 import { getCategories } from '../api/categories.api';
 import { uploadAttachment } from '../api/attachments.api';
 import MarkdownEditor, { MarkdownEditorHandle } from '../components/editor/MarkdownEditor';
-import { Save, X, ChevronLeft, Image as ImageIcon, Folder, Terminal } from 'lucide-react';
+import { Save, X, ChevronLeft, Image as ImageIcon, Folder, Terminal, Hash } from 'lucide-react';
 import NewDocBottomSheet from '../components/layout/NewDocBottomSheet';
 
 export default function DocEditPage() {
@@ -15,6 +15,7 @@ export default function DocEditPage() {
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
   const [categoryId, setCategoryId] = useState<number | ''>(0);
+  const [tags, setTags] = useState('');
   const [showMetaSheet, setShowMetaSheet] = useState(false);
   const editorHandleRef = useRef<MarkdownEditorHandle>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -35,6 +36,7 @@ export default function DocEditPage() {
       setContent(doc.content);
       setTitle(doc.title);
       setCategoryId(doc.categoryId || 0);
+      setTags(doc.tags?.map((t: any) => t.tag.name).join(', ') || '');
     }
   }, [doc]);
 
@@ -51,7 +53,8 @@ export default function DocEditPage() {
     mutation.mutate({ 
       title, 
       content,
-      categoryId: categoryId === '' || categoryId === 0 ? null : categoryId
+      categoryId: categoryId === '' || categoryId === 0 ? null : categoryId,
+      tags: tags.split(',').map(t => t.trim()).filter(t => t !== '')
     });
   };
 
@@ -113,6 +116,16 @@ export default function DocEditPage() {
                   </optgroup>
                 ))}
               </select>
+
+              <div className="w-px h-3 bg-border/50 mx-1" />
+              <Hash className="h-3 w-3 text-primary/40" />
+              <input
+                type="text"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder="TAGS_CSV (e.g. linux, nginx)"
+                className="bg-transparent text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 focus:text-primary focus:outline-none w-48 transition-colors"
+              />
             </div>
           </div>
         </div>
@@ -158,6 +171,8 @@ export default function DocEditPage() {
         onTitleChange={setTitle}
         categoryId={categoryId}
         onCategoryChange={setCategoryId}
+        tags={tags}
+        onTagsChange={setTags}
         onSave={handleSave}
         isPending={mutation.isPending}
       />

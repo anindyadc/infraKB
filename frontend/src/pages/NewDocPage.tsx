@@ -4,7 +4,7 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { createDoc } from '../api/docs.api';
 import { getCategories } from '../api/categories.api';
 import MarkdownEditor from '../components/editor/MarkdownEditor';
-import { Save, X, ChevronLeft, Folder, Sparkles } from 'lucide-react';
+import { Save, X, ChevronLeft, Folder, Sparkles, Hash } from 'lucide-react';
 import NewDocBottomSheet from '../components/layout/NewDocBottomSheet';
 
 const DEFAULT_CONTENT = `# New Runbook
@@ -25,6 +25,7 @@ export default function NewDocPage() {
   const [content, setContent] = useState(DEFAULT_CONTENT);
   const [title, setTitle] = useState('Untitled Runbook');
   const [categoryId, setCategoryId] = useState<number | ''>(0);
+  const [tags, setTags] = useState('');
   const [showMetaSheet, setShowMetaSheet] = useState(true); // Default to true on mobile
 
   const { data: categories } = useQuery({
@@ -44,7 +45,8 @@ export default function NewDocPage() {
     mutation.mutate({ 
       title, 
       content, 
-      categoryId: categoryId === '' || categoryId === 0 ? undefined : categoryId 
+      categoryId: categoryId === '' || categoryId === 0 ? undefined : categoryId,
+      tags: tags.split(',').map(t => t.trim()).filter(t => t !== '')
     });
   };
 
@@ -87,6 +89,16 @@ export default function NewDocPage() {
                   </optgroup>
                 ))}
               </select>
+              
+              <div className="w-px h-3 bg-border/50 mx-1" />
+              <Hash className="h-3 w-3 text-primary/40" />
+              <input
+                type="text"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder="TAGS_CSV (e.g. linux, nginx)"
+                className="bg-transparent text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 focus:text-primary focus:outline-none w-48 transition-colors"
+              />
             </div>
           </div>
         </div>
@@ -117,6 +129,8 @@ export default function NewDocPage() {
         onTitleChange={setTitle}
         categoryId={categoryId}
         onCategoryChange={setCategoryId}
+        tags={tags}
+        onTagsChange={setTags}
         onSave={handleSave}
         isPending={mutation.isPending}
       />
