@@ -4,7 +4,8 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { createDoc } from '../api/docs.api';
 import { getCategories } from '../api/categories.api';
 import MarkdownEditor from '../components/editor/MarkdownEditor';
-import { Save, X, ChevronLeft, Folder, Terminal, Sparkles } from 'lucide-react';
+import { Save, X, ChevronLeft, Folder, Sparkles } from 'lucide-react';
+import NewDocBottomSheet from '../components/layout/NewDocBottomSheet';
 
 const DEFAULT_CONTENT = `# New Runbook
 
@@ -24,6 +25,7 @@ export default function NewDocPage() {
   const [content, setContent] = useState(DEFAULT_CONTENT);
   const [title, setTitle] = useState('Untitled Runbook');
   const [categoryId, setCategoryId] = useState<number | ''>(0);
+  const [showMetaSheet, setShowMetaSheet] = useState(true); // Default to true on mobile
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -48,7 +50,8 @@ export default function NewDocPage() {
 
   return (
     <div className="flex h-full flex-col bg-background">
-      <div className="flex items-center justify-between border-b border-border/50 bg-card/30 backdrop-blur-md px-6 py-4">
+      {/* Desktop Header */}
+      <div className="hidden md:flex items-center justify-between border-b border-border/50 bg-card/30 backdrop-blur-md px-6 py-4">
         <div className="flex items-center gap-6 flex-1">
           <button onClick={() => navigate(-1)} className="h-10 w-10 flex items-center justify-center rounded-xl bg-muted/50 border border-border/50 text-muted-foreground hover:text-foreground transition-all">
             <ChevronLeft className="h-5 w-5" />
@@ -105,9 +108,30 @@ export default function NewDocPage() {
           </button>
         </div>
       </div>
-      
-      <div className="flex-1 overflow-hidden bg-[#0d1117]/30 backdrop-blur-sm">
+
+      {/* Mobile Meta Bottom Sheet */}
+      <NewDocBottomSheet 
+        isOpen={showMetaSheet}
+        onClose={() => setShowMetaSheet(false)}
+        title={title}
+        onTitleChange={setTitle}
+        categoryId={categoryId}
+        onCategoryChange={setCategoryId}
+        onSave={handleSave}
+        isPending={mutation.isPending}
+      />
+
+      {/* Editor Content */}
+      <div className="flex-1 overflow-hidden bg-[#0d1117]/30 backdrop-blur-sm relative">
         <MarkdownEditor value={content} onChange={setContent} />
+        
+        {/* Mobile FAB to show meta sheet */}
+        <button 
+          onClick={() => setShowMetaSheet(true)}
+          className="md:hidden absolute bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center active:scale-90 transition-all z-40"
+        >
+          <Save className="h-6 w-6" />
+        </button>
       </div>
     </div>
   );
