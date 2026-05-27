@@ -58,27 +58,38 @@ function App() {
     bootstrap();
   }, []);
 
-  // Global Copy Helper
+  // Global Code Copy Handler
   useEffect(() => {
-    (window as any).__copyCode = (button: HTMLElement, b64Code: string) => {
-      try {
-        const code = decodeURIComponent(escape(atob(b64Code)));
-        navigator.clipboard.writeText(code).then(() => {
-          const span = button.querySelector('.btn-text');
-          if (span) {
-            const oldText = span.textContent;
-            (span as any).textContent = 'COPIED!';
-            button.classList.add('border-emerald-500/50', 'text-emerald-500');
-            setTimeout(() => {
-              (span as any).textContent = oldText;
-              button.classList.remove('border-emerald-500/50', 'text-emerald-500');
-            }, 2000);
-          }
-        });
-      } catch (err) {
-        console.error('Failed to copy code', err);
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const btn = target.closest('.copy-btn') as HTMLElement;
+      
+      if (btn && btn.dataset.code) {
+        try {
+          const b64 = btn.dataset.code;
+          const code = decodeURIComponent(escape(atob(b64)));
+          
+          navigator.clipboard.writeText(code).then(() => {
+            const span = btn.querySelector('.btn-text');
+            if (span) {
+              const oldText = span.textContent;
+              span.textContent = 'COPIED!';
+              btn.classList.add('!text-emerald-500', '!border-emerald-500/50', '!bg-emerald-500/10');
+              
+              setTimeout(() => {
+                span.textContent = oldText;
+                btn.classList.remove('!text-emerald-500', '!border-emerald-500/50', '!bg-emerald-500/10');
+              }, 2000);
+            }
+          });
+        } catch (err) {
+          console.error('Copy failed', err);
+        }
       }
     };
+
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
   }, []);
 
   return (
