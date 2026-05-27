@@ -8,12 +8,12 @@ export const renderMarkdown = (content: string): string => {
   renderer.code = (code, language) => {
     const validLanguage = language && hljs.getLanguage(language) ? language : 'plaintext';
     const highlighted = hljs.highlight(code, { language: validLanguage }).value;
-    return `<div class="code-wrap my-8 overflow-hidden rounded-xl border border-white/10 bg-[#0d1117] shadow-2xl mx-1">
+    return `<div class="code-wrap my-8 overflow-hidden rounded-xl border border-white/10 bg-[#0d1117] shadow-xl mx-0.5">
       <div class="flex items-center justify-between border-b border-white/5 bg-white/[0.02] px-5 py-2.5">
         <span class="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">${validLanguage}</span>
         <button class="copy-btn rounded-md border border-white/10 bg-white/5 px-3 py-1 font-mono text-[10px] font-bold text-zinc-400 hover:text-white hover:bg-white/10 transition-all active:scale-95">COPY</button>
       </div>
-      <pre class="p-6 overflow-x-auto text-[13.5px] leading-relaxed text-zinc-100 selection:bg-primary/30"><code class="hljs language-${validLanguage}">${highlighted}</code></pre>
+      <pre class="p-6 overflow-x-auto text-[13.5px] leading-relaxed text-zinc-100 selection:bg-primary/30 border-t border-white/[0.02]"><code class="hljs language-${validLanguage}">${highlighted}</code></pre>
     </div>`;
   };
 
