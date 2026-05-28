@@ -3,18 +3,24 @@ import slugify from 'slugify';
 
 export class CategoriesService {
   static async getAll() {
-    return prisma.category.findMany({
-      where: { parentId: null },
-      include: {
-        children: {
-          include: {
-            _count: { select: { docs: true } }
-          }
+    const [categories, uncategorizedCount] = await Promise.all([
+      prisma.category.findMany({
+        where: { parentId: null },
+        include: {
+          children: {
+            include: {
+              _count: { select: { docs: true } }
+            },
+            orderBy: { sortOrder: 'asc' },
+          },
+          _count: { select: { docs: true } }
         },
-        _count: { select: { docs: true } }
-      },
-      orderBy: { sortOrder: 'asc' },
-    });
+        orderBy: { sortOrder: 'asc' },
+      }),
+      prisma.document.count({ where: { categoryId: null } })
+    ]);
+
+    return { categories, uncategorizedCount };
   }
 
   static async create(data: { name: string; icon?: string; description?: string; parentId?: number; sortOrder?: number }) {

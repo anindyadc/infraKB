@@ -89,15 +89,24 @@ export default function Sidebar() {
                 <div className="h-4 bg-muted/50 rounded animate-pulse w-1/2" />
               </div>
             ) : (
-              categories?.map((cat: any) => (
-                <div key={cat.id}>
-                  <Link to={`/categories/${cat.slug}`} className={`flex w-full items-center gap-3 rounded-xl px-4 py-2 text-sm font-bold transition-all ${isActive(`/categories/${cat.slug}`) ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}>
-                    <span className="w-4 text-center grayscale brightness-125 group-hover:grayscale-0">{cat.icon || '📁'}</span>
-                    <span>{cat.name}</span>
-                    <span className="ml-auto font-mono text-[9px] text-muted-foreground/50">{cat._count?.docs || 0}</span>
+              <>
+                {categories?.categories?.map((cat: any) => (
+                  <div key={cat.id}>
+                    <Link to={`/categories/${cat.slug}`} className={`flex w-full items-center gap-3 rounded-xl px-4 py-2 text-sm font-bold transition-all ${isActive(`/categories/${cat.slug}`) ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}>
+                      <span className="w-4 text-center grayscale brightness-125 group-hover:grayscale-0">{cat.icon || '📁'}</span>
+                      <span>{cat.name}</span>
+                      <span className="ml-auto font-mono text-[9px] text-muted-foreground/50">{cat._count?.docs || 0}</span>
+                    </Link>
+                  </div>
+                ))}
+                {categories?.uncategorizedCount > 0 && (
+                  <Link to="/categories/uncategorized" className={`flex w-full items-center gap-3 rounded-xl px-4 py-2 text-sm font-bold transition-all ${isActive('/categories/uncategorized') ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}>
+                    <span className="w-4 text-center">📂</span>
+                    <span>Uncategorized</span>
+                    <span className="ml-auto font-mono text-[9px] text-muted-foreground/50">{categories.uncategorizedCount}</span>
                   </Link>
-                </div>
-              ))
+                )}
+              </>
             )}
           </nav>
         </div>

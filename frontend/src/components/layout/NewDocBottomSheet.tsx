@@ -91,7 +91,7 @@ export default function NewDocBottomSheet({
                 className="w-full bg-muted/30 border border-border rounded-2xl px-5 py-4 text-base font-bold text-foreground outline-none appearance-none"
               >
                 <option value={0}>/ ROOT_DIRECTORY</option>
-                {categories?.map((cat: any) => (
+                {categories?.categories?.map((cat: any) => (
                   <optgroup key={cat.id} label={cat.name.toUpperCase()}>
                     <option value={cat.id}>/ {cat.name.toUpperCase()}</option>
                     {cat.children?.map((child: any) => (

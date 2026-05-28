@@ -437,11 +437,16 @@ function CategoryManagement() {
             <form onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
-              const data = Object.fromEntries(formData.entries());
+              const rawData = Object.fromEntries(formData.entries());
+              const payload = {
+                ...rawData,
+                sortOrder: Number(rawData.sortOrder),
+                parentId: rawData.parentId ? Number(rawData.parentId) : null,
+              };
               if (showAddModal) {
-                createMutation.mutate(data as any);
+                createMutation.mutate(payload as any);
               } else {
-                updateMutation.mutate({ id: editingCategory.id, data: data as any });
+                updateMutation.mutate({ id: editingCategory.id, data: payload as any });
               }
             }} className="space-y-6">
               <div className="space-y-4">
@@ -462,10 +467,20 @@ function CategoryManagement() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Parent Hierarchy</label>
-                  <select name="parentId" defaultValue={editingCategory?.parentId || ""} className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all appearance-none font-bold uppercase">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Description</label>
+                  <textarea name="description" defaultValue={editingCategory?.description} placeholder="Brief summary of this hierarchy..." className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all h-20 resize-none" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Sort Order</label>
+                    <input name="sortOrder" type="number" defaultValue={editingCategory?.sortOrder || 0} className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all font-mono" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Parent Hierarchy</label>
+                    <select name="parentId" defaultValue={editingCategory?.parentId || ""} className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all appearance-none font-bold uppercase">
                     <option value="">/ NONE (TOP LEVEL)</option>
-                    {categories?.filter((c: any) => c.id !== editingCategory?.id).map((c: any) => (
+                    {categories?.categories?.filter((c: any) => c.id !== editingCategory?.id).map((c: any) => (
                       <option key={c.id} value={c.id}>/ {c.name.toUpperCase()}</option>
                     ))}
                   </select>

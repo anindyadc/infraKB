@@ -105,7 +105,7 @@ export default function DocEditPage() {
                 className="bg-transparent text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 hover:text-primary outline-none cursor-pointer transition-colors"
               >
                 <option value={0}>/ ROOT_DIRECTORY</option>
-                {categories?.map((cat: any) => (
+                {categories?.categories?.map((cat: any) => (
                   <optgroup key={cat.id} label={cat.name.toUpperCase()}>
                     <option value={cat.id}>/ {cat.name.toUpperCase()}</option>
                     {cat.children?.map((child: any) => (

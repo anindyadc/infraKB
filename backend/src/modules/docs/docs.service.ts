@@ -15,7 +15,13 @@ export class DocsService {
       // By default show both internal published and public documents
       where.status = { in: ['PUBLISHED', 'PUBLIC'] };
     }
-    if (category) where.category = { slug: category };
+    if (category) {
+      if (category === 'uncategorized') {
+        where.categoryId = null;
+      } else {
+        where.category = { slug: category };
+      }
+    }
     if (tag) where.tags = { some: { tag: { slug: tag } } };
     if (author) where.authorId = parseInt(author);
     if (pinned !== undefined) where.isPinned = pinned === 'true';

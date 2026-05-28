@@ -50,7 +50,10 @@ The seed script creates an initial administrator account:
 
 - **Command Center Dashboard:** A premium, high-performance dashboard featuring real-time system metrics, node status, and intuitive navigation.
 - **Dynamic Tagging System:** Categorize runbooks with flexible tags for advanced filtering and discovery.
-- **Category Hierarchy Management:** Full administrative control over knowledge hierarchies and documentation structure.
+- **Hierarchical Content Organization:**
+  - **Category Management:** Full administrative control over knowledge hierarchies. Create, update, and sort nested categories with custom emoji icons.
+  - **Uncategorized Catch-all:** Smart handling of orphaned documents when categories are deleted, ensuring no data is lost.
+  - **Registry Structure:** Dedicated Admin tab for managing the entire knowledge tree.
 - **Distraction-free Workspace:** Collapse both the category sidebar and document list to maximize your writing and reading area (Shortcuts: `[` and `]`).
 - **Global Keyboard Shortcuts:** Efficient navigation via high-performance shortcuts (press `?` for full map).
 - **User & Credential Management:** Full administrative control over operator accounts, roles (RBAC), and secure password resets.
