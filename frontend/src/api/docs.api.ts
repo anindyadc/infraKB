@@ -1,26 +1,14 @@
-import client from './client';
+import { docsService as expressDocs } from './express/docs.service';
+import { docsService as supabaseDocs } from './supabase/docs.service';
+import { IDocsService } from './types';
 
-export const getDocs = async (params: any) => {
-  const { data } = await client.get('/docs', { params });
-  return data;
-};
+const backendType = import.meta.env.VITE_BACKEND_TYPE;
 
-export const getDoc = async (idOrSlug: string) => {
-  const { data } = await client.get(`/docs/${idOrSlug}`);
-  return data.data;
-};
+export const docsService: IDocsService = backendType === 'supabase' ? supabaseDocs : expressDocs;
 
-export const createDoc = async (payload: any) => {
-  const { data } = await client.post('/docs', payload);
-  return data.data;
-};
-
-export const updateDoc = async (id: number, payload: any) => {
-  const { data } = await client.put(`/docs/${id}`, payload);
-  return data.data;
-};
-
-export const deleteDoc = async (id: number) => {
-  const { data } = await client.delete(`/docs/${id}`);
-  return data.data;
-};
+// Export individual functions for backward compatibility with existing components
+export const getDocs = docsService.getAll;
+export const getDoc = docsService.getOne;
+export const createDoc = docsService.create;
+export const updateDoc = docsService.update;
+export const deleteDoc = docsService.delete;

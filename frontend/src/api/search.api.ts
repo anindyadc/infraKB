@@ -1,12 +1,11 @@
-import client from './client';
+import { searchService as expressSearch } from './express/search.service';
+import { searchService as supabaseSearch } from './supabase/search.service';
+import { ISearchService } from './types';
 
-export const searchDocs = async (params: { q: string; category?: string; tag?: string; status?: string; page?: number; limit?: number }) => {
-  const { data } = await client.get('/search', { params });
-  return data;
-};
+const backendType = import.meta.env.VITE_BACKEND_TYPE;
 
-export const suggestDocs = async (query: string) => {
-  if (!query || query.length < 2) return [];
-  const { data } = await client.get('/search/suggest', { params: { q: query } });
-  return data.data;
-};
+export const searchService: ISearchService = backendType === 'supabase' ? supabaseSearch : expressSearch;
+
+export const searchDocs = searchService.search;
+export const suggestDocs = searchService.suggest;
+ Broadway

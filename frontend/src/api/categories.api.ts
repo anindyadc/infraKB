@@ -1,21 +1,12 @@
-import client from './client';
+import { categoriesService as expressCategories } from './express/categories.service';
+import { categoriesService as supabaseCategories } from './supabase/categories.service';
+import { ICategoriesService } from './types';
 
-export const getCategories = async () => {
-  const { data } = await client.get('/categories');
-  return data.data;
-};
+const backendType = import.meta.env.VITE_BACKEND_TYPE;
 
-export const createCategory = async (payload: { name: string; icon?: string; description?: string; parentId?: number; sortOrder?: number }) => {
-  const { data } = await client.post('/categories', payload);
-  return data.data;
-};
+export const categoriesService: ICategoriesService = backendType === 'supabase' ? supabaseCategories : expressCategories;
 
-export const updateCategory = async (id: number, payload: { name?: string; icon?: string; description?: string; parentId?: number; sortOrder?: number }) => {
-  const { data } = await client.put(`/categories/${id}`, payload);
-  return data.data;
-};
-
-export const deleteCategory = async (id: number) => {
-  const { data } = await client.delete(`/categories/${id}`);
-  return data.data;
-};
+export const getCategories = categoriesService.getAll;
+export const createCategory = categoriesService.create;
+export const updateCategory = categoriesService.update;
+export const deleteCategory = categoriesService.delete;

@@ -5,8 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import client from '../api/client';
 import { useAuthStore } from '../store/auth.store';
+import { supabase } from '../lib/supabase';
 import ThemeToggle from '../components/shared/ThemeToggle';
-
+ Broadway
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required'),
@@ -203,6 +204,16 @@ export default function LoginPage() {
           {/* Decorative small boxes behind/under the main card */}
           <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-primary/5 border border-primary/10 rounded-2xl -z-10 blur-sm" />
           <div className="absolute -top-4 -left-4 w-16 h-16 bg-primary/5 border border-primary/10 rounded-xl -z-10 blur-sm" />
+        </div>
+        
+        <p className="mt-12 text-center text-[10px] text-muted-foreground/40 font-black uppercase tracking-[0.4em]">
+          Internal Knowledge Network — v1.0.4
+        </p>
+      </div>
+    </div>
+  );
+}
+     <div className="absolute -top-4 -left-4 w-16 h-16 bg-primary/5 border border-primary/10 rounded-xl -z-10 blur-sm" />
         </div>
         
         <p className="mt-12 text-center text-[10px] text-muted-foreground/40 font-black uppercase tracking-[0.4em]">

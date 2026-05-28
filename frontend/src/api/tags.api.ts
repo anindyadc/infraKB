@@ -1,11 +1,11 @@
-import client from './client';
+import { tagsService as expressTags } from './express/tags.service';
+import { tagsService as supabaseTags } from './supabase/tags.service';
+import { ITagsService } from './types';
 
-export const getTags = async () => {
-  const { data } = await client.get('/tags');
-  return data.data;
-};
+const backendType = import.meta.env.VITE_BACKEND_TYPE;
 
-export const deleteTag = async (id: number) => {
-  const { data } = await client.delete(`/tags/${id}`);
-  return data.data;
-};
+export const tagsService: ITagsService = backendType === 'supabase' ? supabaseTags : expressTags;
+
+export const getTags = tagsService.getAll;
+export const deleteTag = tagsService.delete;
+ Broadway

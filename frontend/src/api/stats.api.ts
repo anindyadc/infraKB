@@ -1,6 +1,10 @@
-import client from './client';
+import { statsService as expressStats } from './express/stats.service';
+import { statsService as supabaseStats } from './supabase/stats.service';
+import { IStatsService } from './types';
 
-export const getStats = async () => {
-  const { data } = await client.get('/stats');
-  return data.data;
-};
+const backendType = import.meta.env.VITE_BACKEND_TYPE;
+
+export const statsService: IStatsService = backendType === 'supabase' ? supabaseStats : expressStats;
+
+export const getStats = statsService.getStats;
+ Broadway

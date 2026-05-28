@@ -1,26 +1,12 @@
-import client from './client';
+import { usersService as expressUsers } from './express/users.service';
+import { usersService as supabaseUsers } from './supabase/users.service';
+import { IUsersService } from './types';
 
-export const getMe = async () => {
-  const { data } = await client.get('/auth/me');
-  return data.data;
-};
+const backendType = import.meta.env.VITE_BACKEND_TYPE;
 
-export const getUsers = async (params: { page?: number; limit?: number; role?: string; search?: string }) => {
-  const { data } = await client.get('/users', { params });
-  return data;
-};
+export const usersService: IUsersService = backendType === 'supabase' ? supabaseUsers : expressUsers;
 
-export const createUser = async (payload: any) => {
-  const { data } = await client.post('/auth/register', payload);
-  return data.data;
-};
-
-export const updateUser = async (id: number, payload: { role?: string; isActive?: boolean; displayName?: string; password?: string }) => {
-  const { data } = await client.put(`/users/${id}`, payload);
-  return data.data;
-};
-
-export const deleteUser = async (id: number) => {
-  const { data } = await client.delete(`/users/${id}`);
-  return data.data;
-};
+export const getUsers = usersService.getAll;
+export const updateUser = usersService.update;
+export const deleteUser = usersService.delete;
+ Broadway
