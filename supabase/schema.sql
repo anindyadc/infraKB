@@ -146,6 +146,16 @@ CREATE POLICY "Users can update own documents" ON public.documents
 CREATE POLICY "Users can delete own documents" ON public.documents
   FOR DELETE USING (auth.uid() = author_id);
 
+-- Child table cascading delete policies
+CREATE POLICY "Users can delete own doc_versions" ON public.doc_versions
+  FOR DELETE USING (EXISTS (SELECT 1 FROM public.documents WHERE id = doc_id AND author_id = auth.uid()));
+
+CREATE POLICY "Users can delete own doc_tags" ON public.doc_tags
+  FOR DELETE USING (EXISTS (SELECT 1 FROM public.documents WHERE id = doc_id AND author_id = auth.uid()));
+
+CREATE POLICY "Users can delete own attachments" ON public.attachments
+  FOR DELETE USING (EXISTS (SELECT 1 FROM public.documents WHERE id = doc_id AND author_id = auth.uid()));
+
 CREATE POLICY "Users can view all categories" ON public.categories
   FOR SELECT USING (auth.role() = 'authenticated');
 
