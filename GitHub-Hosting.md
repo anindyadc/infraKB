@@ -79,3 +79,17 @@ You must tell GitHub Pages to serve the compiled application, not your source co
 5. Click **Save**.
 
 *Note: Ensure your `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are added to your repository's **Secrets and variables -> Actions** so the workflow can bake them into the production build.*
+
+### 🔍 Troubleshooting Common Issues
+
+#### "Invalid path" or 404 on login
+This usually means your `VITE_SUPABASE_URL` secret contains an extra path like `/rest/v1`. 
+- **The fix:** The application now automatically cleans these suffixes, but for best performance, ensure your secret is just the base domain (e.g., `https://xyz.supabase.co`).
+
+#### User created in Auth but not showing in profiles
+This means the PostgreSQL trigger wasn't successfully applied.
+- **The fix:** Ensure you have run the **AUTH TRIGGER** block at the end of `supabase/schema.sql` in your Supabase SQL Editor. This trigger is required to sync the authentication system with the application's profile system.
+
+#### 403 Forbidden on authentication requests
+- **The fix:** Verify that you have used the **`anon` (public)** API key in your `VITE_SUPABASE_ANON_KEY` secret. If you accidentally used the `service_role` key, the browser will reject the requests for security reasons.
+

@@ -87,8 +87,8 @@ In your GitHub repository, go to **Settings > Secrets and variables > Actions** 
 - `VITE_SUPABASE_ANON_KEY`: Your Supabase Anon Key.
 
 ### 3. Deploy
-Push your changes to the `main` branch. The included GitHub Action (`.github/workflows/deploy-gh-pages.yml`) will automatically:
-1. Build the frontend with `VITE_BACKEND_TYPE=supabase`.
-2. Deploy the static assets to the `gh-pages` branch.
-3. Your app will be live at `https://<username>.github.io/<repo-name>/`.
+Push your changes to the `main` branch. The included GitHub Action (`.github/workflows/deploy-gh-pages.yml`) will automatically build and deploy the application.
+
+For detailed repository configuration (Permissions, Pages Source) and common troubleshooting steps, please refer to the **[GitHub Hosting & CI/CD Guide](./GitHub-Hosting.md)**.
+
 

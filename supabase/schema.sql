@@ -141,3 +141,52 @@ CREATE POLICY "Users can view all categories" ON public.categories
   FOR SELECT USING (auth.role() = 'authenticated');
 
 -- More complex RBAC policies would be added here based on 'profiles.role'
+
+-- ── AUTH TRIGGER ──────────────────────────────────────────
+-- Function to automatically create a profile when a new user signs up via Supabase Auth
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+DECLARE
+  is_first_user BOOLEAN;
+  base_name TEXT;
+BEGIN
+  -- 1. Check if this is the first user in the system to grant ADMIN role
+  SELECT (NOT EXISTS (SELECT 1 FROM public.profiles LIMIT 1)) INTO is_first_user;
+
+  -- 2. Extract base name from email
+  base_name := split_part(NEW.email, '@', 1);
+
+  -- 3. Insert into profiles
+  INSERT INTO public.profiles (
+    id, 
+    email, 
+    username, 
+    display_name, 
+    role,
+    is_active
+  )
+  VALUES (
+    NEW.id,
+    NEW.email,
+    -- Unique username: base_name + random number
+    base_name || '_' || floor(random() * 9999 + 1000)::text,
+    -- Display Name: metadata or base_name
+    COALESCE(NEW.raw_user_meta_data->>'displayName', base_name),
+    -- First user is ADMIN, others are VIEWER
+    CASE WHEN is_first_user THEN 'ADMIN'::public.user_role ELSE 'VIEWER'::public.user_role END,
+    TRUE
+  );
+
+  RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
+  -- Fallback to ensure user creation doesn't fail even if profile sync has an issue
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Re-create the trigger
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
