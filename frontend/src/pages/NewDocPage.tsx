@@ -40,6 +40,9 @@ export default function NewDocPage() {
       queryClient.invalidateQueries({ queryKey: ['docs'] });
       navigate(`/docs/${newDoc.slug}`);
     },
+    onError: (err: any) => {
+      alert(`Failed to save document: ${err.message}`);
+    }
   });
 
   const handleSave = () => {

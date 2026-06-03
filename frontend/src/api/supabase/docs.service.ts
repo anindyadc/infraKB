@@ -64,15 +64,25 @@ export const docsService: IDocsService = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Unauthorized');
 
-    const { tags, ...docData } = payload;
+    const { tags, categoryId, ...docData } = payload as any;
     
     // Generate a URL-friendly slug from the title if not provided
     const baseSlug = docData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     const uniqueSlug = `${baseSlug}-${Math.floor(Math.random() * 10000)}`;
 
+    const insertPayload: any = { 
+      ...docData, 
+      slug: uniqueSlug, 
+      author_id: user.id 
+    };
+
+    if (categoryId !== undefined) {
+      insertPayload.category_id = categoryId;
+    }
+
     const { data, error } = await supabase
       .from('documents')
-      .insert({ ...docData, slug: uniqueSlug, author_id: user.id })
+      .insert(insertPayload)
       .select()
       .single();
 
@@ -86,10 +96,16 @@ export const docsService: IDocsService = {
     return data as any;
   },
   update: async (id, payload) => {
-    const { tags, changeSummary, ...docData } = payload;
+    const { tags, changeSummary, categoryId, ...docData } = payload as any;
+    
+    const updatePayload: any = { ...docData };
+    if (categoryId !== undefined) {
+      updatePayload.category_id = categoryId === 0 ? null : categoryId;
+    }
+
     const { data, error } = await supabase
       .from('documents')
-      .update(docData)
+      .update(updatePayload)
       .eq('id', id)
       .select()
       .single();
