@@ -90,6 +90,10 @@ This usually means your `VITE_SUPABASE_URL` secret contains an extra path like `
 This means the PostgreSQL trigger wasn't successfully applied.
 - **The fix:** Ensure you have run the **AUTH TRIGGER** block at the end of `supabase/schema.sql` in your Supabase SQL Editor. This trigger is required to sync the authentication system with the application's profile system.
 
+#### 406 Not Acceptable or 500 Internal Server Error after login
+A `406` error means your Row Level Security (RLS) policies are blocking you from reading your own profile. A `500` error during login or when fetching documents usually means you created a recursive RLS policy.
+- **The fix:** Apply the **PROFILE POLICIES & HELPER FUNCTIONS** block from `supabase/schema.sql` in your Supabase SQL Editor. This includes the `is_admin()` helper function, which safely checks roles without causing infinite recursion loops.
+
 #### 403 Forbidden on authentication requests
 - **The fix:** Verify that you have used the **`anon` (public)** API key in your `VITE_SUPABASE_ANON_KEY` secret. If you accidentally used the `service_role` key, the browser will reject the requests for security reasons.
 

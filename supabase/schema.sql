@@ -142,6 +142,39 @@ CREATE POLICY "Users can view all categories" ON public.categories
 
 -- More complex RBAC policies would be added here based on 'profiles.role'
 
+-- ── PROFILE POLICIES & HELPER FUNCTIONS ───────────────────
+-- Helper function to check admin status without triggering infinite recursion on profiles table
+CREATE OR REPLACE FUNCTION public.is_admin() 
+RETURNS boolean AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() AND role = 'ADMIN'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Users can view their own profile
+CREATE POLICY "Users can view own profile" 
+ON public.profiles 
+FOR SELECT 
+TO authenticated 
+USING (auth.uid() = id);
+
+-- Users can update their own profile
+CREATE POLICY "Users can update own profile" 
+ON public.profiles 
+FOR UPDATE 
+TO authenticated 
+USING (auth.uid() = id);
+
+-- Admins can view all profiles
+CREATE POLICY "Admins can view all profiles" 
+ON public.profiles 
+FOR SELECT 
+TO authenticated 
+USING (public.is_admin());
+
 -- ── AUTH TRIGGER ──────────────────────────────────────────
 -- Function to automatically create a profile when a new user signs up via Supabase Auth
 CREATE OR REPLACE FUNCTION public.handle_new_user()
