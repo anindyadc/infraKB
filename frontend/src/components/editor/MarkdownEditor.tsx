@@ -22,6 +22,45 @@ const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorProps>(({ 
   const viewRef = useRef<EditorView | null>(null);
   const theme = useUIStore((state) => state.theme);
 
+  const getThemeExtension = (currentTheme: string) => {
+    const isDark = currentTheme === 'dark' || (currentTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    const customStyles = EditorView.theme({
+      '&': {
+        backgroundColor: 'transparent !important',
+        height: '100%',
+      },
+      '.cm-content': {
+        fontFamily: '"JetBrains Mono", monospace',
+        fontSize: '14px',
+        lineHeight: '1.8',
+        padding: '20px 0',
+      },
+      '.cm-gutters': {
+        backgroundColor: 'transparent !important',
+        border: 'none !important',
+        color: isDark ? '#484f58' : '#9ca3af',
+        userSelect: 'none',
+      },
+      '.cm-activeLine': {
+        backgroundColor: isDark ? 'rgba(255, 255, 255, 0.03) !important' : 'rgba(0, 0, 0, 0.03) !important',
+      },
+      '.cm-activeLineGutter': {
+        backgroundColor: 'transparent !important',
+        color: isDark ? '#e6edf3' : '#111827',
+      },
+      '.cm-selectionBackground, ::selection': {
+        backgroundColor: 'rgba(16, 185, 129, 0.2) !important',
+      },
+      '.cm-cursor': {
+        borderLeftColor: '#10b981 !important',
+        borderLeftWidth: '2px',
+      },
+    }, { dark: isDark });
+
+    return isDark ? [oneDark, customStyles] : [customStyles];
+  };
+
   useImperativeHandle(ref, () => ({
     insertText: (text: string) => {
       if (viewRef.current) {
@@ -43,17 +82,12 @@ const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorProps>(({ 
       }
     });
 
-    const getThemeExtension = () => {
-      const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      return isDark ? oneDark : [];
-    };
-
     const view = new EditorView({
       doc: value,
       extensions: [
         basicSetup,
         markdown({ base: markdown().language, codeLanguages: languages }),
-        themeCompartment.of(getThemeExtension()),
+        themeCompartment.of(getThemeExtension(theme)),
         EditorView.lineWrapping,
         updateListener,
       ],
@@ -70,14 +104,13 @@ const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorProps>(({ 
   // Update theme dynamically
   useEffect(() => {
     if (viewRef.current) {
-      const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
       viewRef.current.dispatch({
-        effects: themeCompartment.reconfigure(isDark ? oneDark : []),
+        effects: themeCompartment.reconfigure(getThemeExtension(theme)),
       });
     }
   }, [theme]);
 
-  // Update doc if value changes externally (e.g. initial load)
+  // Update doc if value changes externally
   useEffect(() => {
     if (viewRef.current && value !== viewRef.current.state.doc.toString()) {
       viewRef.current.dispatch({
@@ -86,7 +119,7 @@ const MarkdownEditor = forwardRef<MarkdownEditorHandle, MarkdownEditorProps>(({ 
     }
   }, [value]);
 
-  return <div ref={editorRef} className="h-full overflow-auto font-mono text-sm" />;
+  return <div ref={editorRef} className="h-full overflow-auto" />;
 });
 
 export default MarkdownEditor;

@@ -70,6 +70,8 @@ The seed script creates an initial administrator account:
   - **Single File:** Instantly create documents by uploading `.md` or `.txt` files.
   - **Bulk Import:** Migrate entire libraries at once by importing multiple files into specific categories within the Admin Panel.
 - **Premium Markdown Experience:** Industry-standard rendering with Mac-style code blocks, JetBrains Mono typography, and one-click copy.
+- **Theme-Aware Writing Environment:** High-contrast deep dark mode for focus and light zinc-themed interface for daylight readability.
+- **Robust Clipboard Resilience:** Fail-safe copy-to-clipboard functionality that works across all network environments (HTTPS and HTTP/LAN).
 - **Mobile-Friendly & PWA:** Fully responsive UI installable as a standalone application.
 
 ## 📂 Project Structure

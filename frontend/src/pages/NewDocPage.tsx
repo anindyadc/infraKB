@@ -70,7 +70,10 @@ export default function NewDocPage() {
   };
 
   return (
-    <div className="flex h-full flex-col bg-background">
+    <div className="flex h-full flex-col bg-background relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-primary/5 rounded-full blur-[120px] -z-10 pointer-events-none" />
+      
       {/* Hidden file input */}
       <input 
         type="file" 
@@ -80,78 +83,101 @@ export default function NewDocPage() {
         className="hidden" 
       />
 
-      {/* Desktop Header */}
-      <div className="hidden md:flex items-center justify-between border-b border-border/50 bg-card/30 backdrop-blur-md px-6 py-4">
-        <div className="flex items-center gap-6 flex-1">
-          <button onClick={() => navigate(-1)} className="h-10 w-10 flex items-center justify-center rounded-xl bg-muted/50 border border-border/50 text-muted-foreground hover:text-foreground transition-all">
-            <ChevronLeft className="h-5 w-5" />
+      {/* Desktop Header: Premium Command Bar */}
+      <div className="hidden md:flex items-center justify-between border-b border-border/50 bg-card/40 backdrop-blur-xl px-8 py-6 z-20 shadow-2xl">
+        <div className="flex items-center gap-8 flex-1">
+          <button 
+            onClick={() => navigate(-1)} 
+            className="group h-12 w-12 flex items-center justify-center rounded-2xl bg-muted/50 border border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 active:scale-95"
+            title="Back to Workspace"
+          >
+            <ChevronLeft className="h-6 w-6 transition-transform group-hover:-translate-x-1" />
           </button>
-          <div className="flex flex-col flex-1">
-            <div className="flex items-center gap-3 mb-1">
-               <Sparkles className="h-3 w-3 text-primary/60" />
-               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Initialization Protocol</span>
+          
+          <div className="flex flex-col flex-1 max-w-2xl">
+            <div className="flex items-center gap-3 mb-2">
+               <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20">
+                 <Sparkles className="h-3 w-3 text-primary" />
+                 <span className="text-[9px] font-black uppercase tracking-[0.3em] text-primary">Deployment Protocol</span>
+               </div>
+               <div className="h-px w-8 bg-border/50" />
+               <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 font-mono">SYS_NEW_ENTITY_V1</span>
             </div>
+            
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="bg-transparent text-2xl font-black text-foreground focus:outline-none tracking-tighter placeholder:opacity-20"
-              placeholder="NEW_ENTITY_NAME"
+              className="bg-transparent text-3xl font-black text-foreground focus:outline-none tracking-tighter placeholder:text-muted-foreground/20 w-full selection:bg-primary/30"
+              placeholder="DOCUMENT_TITLE_STUB"
             />
-            <div className="flex items-center gap-2 mt-2">
-              <Folder className="h-3 w-3 text-primary/40" />
-              <select 
-                value={categoryId}
-                onChange={(e) => setCategoryId(Number(e.target.value))}
-                className="bg-transparent text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 hover:text-primary outline-none cursor-pointer transition-colors"
-              >
-                <option value={0}>/ ROOT_DIRECTORY</option>
-                {categories?.categories?.map((cat: any) => (
-                  <optgroup key={cat.id} label={cat.name.toUpperCase()}>
-                    <option value={cat.id}>/ {cat.name.toUpperCase()}</option>
-                    {cat.children?.map((child: any) => (
-                      <option key={child.id} value={child.id}>
-                        &nbsp;&nbsp;{'>'} {child.name.toUpperCase()}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
+            
+            <div className="flex items-center gap-4 mt-4">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/30 border border-border/50 group focus-within:border-primary/30 transition-all">
+                <Folder className="h-3.5 w-3.5 text-primary/40 group-focus-within:text-primary transition-colors" />
+                <select 
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(Number(e.target.value))}
+                  className="bg-transparent text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground outline-none cursor-pointer transition-colors appearance-none"
+                >
+                  <option value={0}>/ ROOT_DIRECTORY</option>
+                  {categories?.categories?.map((cat: any) => (
+                    <optgroup key={cat.id} label={cat.name.toUpperCase()} className="bg-card">
+                      <option value={cat.id}>/ {cat.name.toUpperCase()}</option>
+                      {cat.children?.map((child: any) => (
+                        <option key={child.id} value={child.id}>
+                          &nbsp;&nbsp;{'>'} {child.name.toUpperCase()}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </div>
               
-              <div className="w-px h-3 bg-border/50 mx-1" />
-              <Hash className="h-3 w-3 text-primary/40" />
-              <input
-                type="text"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                placeholder="TAGS_CSV (e.g. linux, nginx)"
-                className="bg-transparent text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 focus:text-primary focus:outline-none w-48 transition-colors"
-              />
+              <div className="h-4 w-px bg-border/50" />
+              
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/30 border border-border/50 group focus-within:border-primary/30 transition-all flex-1 max-w-xs">
+                <Hash className="h-3.5 w-3.5 text-primary/40 group-focus-within:text-primary transition-colors" />
+                <input
+                  type="text"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  placeholder="CLASSIFICATION_TAGS (e.g. prod, linux)"
+                  className="bg-transparent text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground focus:text-foreground focus:outline-none w-full transition-colors"
+                />
+              </div>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="flex items-center gap-4">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-all"
+            className="hidden lg:flex items-center gap-2 px-5 py-3 rounded-2xl border border-border bg-background text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:border-primary/30 hover:text-primary hover:bg-primary/5 transition-all active:scale-95 group"
           >
-            <FileUp className="h-3.5 w-3.5" />
+            <FileUp className="h-4 w-4 transition-transform group-hover:-translate-y-0.5" />
             <span>Import Markdown</span>
           </button>
+          
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-all"
+            className="flex items-center gap-2 px-5 py-3 rounded-2xl border border-border bg-background text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-destructive hover:border-destructive/30 hover:bg-destructive/5 transition-all active:scale-95"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-4 w-4" />
             <span>Discard</span>
           </button>
+          
           <button
             onClick={handleSave}
             disabled={mutation.isPending}
-            className="flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90 disabled:opacity-50 transition-all active:scale-95"
+            className="group relative flex items-center gap-3 px-8 py-3.5 rounded-2xl bg-primary text-[11px] font-black uppercase tracking-[0.3em] text-primary-foreground shadow-2xl shadow-primary/30 hover:bg-primary/90 disabled:opacity-50 transition-all active:scale-95 overflow-hidden"
           >
-            <Save className="h-3.5 w-3.5" />
-            <span>{mutation.isPending ? 'Deploying...' : 'Publish Runbook'}</span>
+            <div className="relative z-10 flex items-center gap-2">
+              <Save className="h-4 w-4 transition-transform group-hover:scale-110" />
+              <span>{mutation.isPending ? 'Syncing...' : 'Deploy Node'}</span>
+            </div>
+            {/* Inner glow effect */}
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
         </div>
       </div>
@@ -171,16 +197,21 @@ export default function NewDocPage() {
         onImport={() => fileInputRef.current?.click()}
       />
 
-      {/* Editor Content */}
-      <div className="flex-1 overflow-hidden bg-[#0d1117]/30 backdrop-blur-sm relative">
-        <MarkdownEditor value={content} onChange={setContent} />
+      {/* Editor Content Area */}
+      <div className="flex-1 overflow-hidden bg-zinc-50 dark:bg-[#0d1117] flex flex-col relative transition-colors duration-500">
+        {/* Subtle grid pattern for the IDE feel */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-[0.03] pointer-events-none" />
+        
+        <div className="flex-1 overflow-hidden px-4 py-2 lg:px-0">
+          <MarkdownEditor value={content} onChange={setContent} />
+        </div>
         
         {/* Mobile FAB to show meta sheet */}
         <button 
           onClick={() => setShowMetaSheet(true)}
-          className="md:hidden absolute bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center active:scale-90 transition-all z-40"
+          className="md:hidden absolute bottom-8 right-8 h-16 w-16 rounded-[2rem] bg-primary text-primary-foreground shadow-2xl shadow-primary/40 flex items-center justify-center active:scale-90 transition-all z-40 border-4 border-background"
         >
-          <Save className="h-6 w-6" />
+          <Save className="h-7 w-7" />
         </button>
       </div>
     </div>
