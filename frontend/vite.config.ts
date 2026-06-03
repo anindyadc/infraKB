@@ -17,7 +17,8 @@ export default defineConfig({
         background_color: '#0d1117',
         display: 'standalone',
         orientation: 'any',
-        start_url: '/',
+        start_url: '/infraKB/',
+        scope: '/infraKB/',
         icons: [
           {
             src: 'https://cdn-icons-png.flaticon.com/512/1243/1243560.png',

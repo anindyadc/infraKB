@@ -66,7 +66,7 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-tr from-[#0d1117] via-[#0d1117]/90 to-transparent" />
         
         {/* Animated Grid Pattern */}
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
+        <div className="absolute inset-0 bg-noise opacity-20" />
         
         <div className="relative z-10 flex flex-col justify-between p-16 w-full text-white">
           <div>

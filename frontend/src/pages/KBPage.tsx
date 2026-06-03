@@ -101,7 +101,7 @@ export default function KBPage() {
           <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
             <div className="absolute top-[-10%] left-[-5%] w-[40rem] h-[40rem] bg-primary/5 rounded-full blur-[120px]" />
             <div className="absolute bottom-[-10%] right-[-5%] w-[35rem] h-[35rem] bg-primary/5 rounded-full blur-[100px]" />
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay" />
+            <div className="absolute inset-0 bg-noise opacity-[0.03] mix-blend-overlay" />
           </div>
 
           <Routes>

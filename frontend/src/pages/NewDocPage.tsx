@@ -200,7 +200,7 @@ export default function NewDocPage() {
       {/* Editor Content Area */}
       <div className="flex-1 overflow-hidden bg-zinc-50 dark:bg-[#0d1117] flex flex-col relative transition-colors duration-500">
         {/* Subtle grid pattern for the IDE feel */}
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-[0.03] pointer-events-none" />
+        <div className="absolute inset-0 bg-noise opacity-[0.03] dark:opacity-[0.03] pointer-events-none" />
         
         <div className="flex-1 overflow-hidden px-4 py-2 lg:px-0">
           <MarkdownEditor value={content} onChange={setContent} />
