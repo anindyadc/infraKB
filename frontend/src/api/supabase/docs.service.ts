@@ -66,9 +66,13 @@ export const docsService: IDocsService = {
 
     const { tags, ...docData } = payload;
     
+    // Generate a URL-friendly slug from the title if not provided
+    const baseSlug = docData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const uniqueSlug = `${baseSlug}-${Math.floor(Math.random() * 10000)}`;
+
     const { data, error } = await supabase
       .from('documents')
-      .insert({ ...docData, author_id: user.id })
+      .insert({ ...docData, slug: uniqueSlug, author_id: user.id })
       .select()
       .single();
 
