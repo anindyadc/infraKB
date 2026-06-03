@@ -9,6 +9,7 @@ This document contains foundational mandates for all AI agents working on the In
 - **Layered Backend**: For the Express backend, maintain a strict separation between Routers, Controllers, and Services. Logic must reside in Services.
 - **Stateless Auth**: Use JWT for access tokens and DB-backed refresh tokens. Never store sensitive data in local storage on the frontend; use httpOnly cookies for refresh tokens and memory-based state for access tokens.
 - **Type Safety**: TypeScript is mandatory across both backend and frontend. Avoid `any` at all costs. Use Zod for runtime validation and Prisma for type-safe database queries.
+- **Strict Null Checks**: Always assume API data (`useQuery` results) might be undefined during initial render. Use optional chaining (`?.`) or explicit null checks before mapping arrays or accessing nested properties to ensure `npm run build` succeeds in CI/CD environments.
 - **Markdown-Native**: Documents are stored as raw Markdown. The frontend is responsible for rendering. The rendering pipeline must include sanitization (`DOMPurify`).
 - **Clipboard Standard**: Never use `navigator.clipboard` directly in components. Always use the `copyToClipboard` utility from `src/lib/clipboard.ts` to ensure compatibility with non-secure (HTTP) environments.
 - **API Consistency**: When adding new features to the data layer, ensure both `src/api/express/` and `src/api/supabase/` implementations are updated to maintain dual-backend parity.

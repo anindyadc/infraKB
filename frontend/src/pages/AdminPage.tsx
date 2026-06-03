@@ -215,8 +215,9 @@ function UserManagement() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border/30">
-            {data.data.map((user: any) => (
+            {data?.data?.map((user: any) => (
               <tr key={user.id} className="hover:bg-muted/30 transition-all group">
+
                 <td className="px-8 py-6">
                   <div className="flex items-center gap-4">
                     <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-xs text-primary font-black uppercase">

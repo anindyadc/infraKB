@@ -99,7 +99,7 @@ export default function Sidebar() {
                     </Link>
                   </div>
                 ))}
-                {categories?.uncategorizedCount > 0 && (
+                {categories && categories.uncategorizedCount > 0 && (
                   <Link to="/categories/uncategorized" className={`flex w-full items-center gap-3 rounded-xl px-4 py-2 text-sm font-bold transition-all ${isActive('/categories/uncategorized') ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}>
                     <span className="w-4 text-center">📂</span>
                     <span>Uncategorized</span>

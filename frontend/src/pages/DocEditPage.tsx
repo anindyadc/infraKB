@@ -39,10 +39,10 @@ export default function DocEditPage() {
       setTags(doc.tags?.map((t: any) => t.tag.name).join(', ') || '');
     }
   }, [doc]);
+const mutation = useMutation({
+  mutationFn: (data: any) => updateDoc(doc!.id, data),
+  onSuccess: (updatedDoc) => {
 
-  const mutation = useMutation({
-    mutationFn: (data: any) => updateDoc(doc.id, data),
-    onSuccess: (updatedDoc) => {
       queryClient.invalidateQueries({ queryKey: ['doc', slug] });
       queryClient.invalidateQueries({ queryKey: ['docs'] });
       navigate(`/docs/${updatedDoc.slug}`);

@@ -22,7 +22,7 @@ export default function DocViewPage() {
   });
 
   const mutation = useMutation({
-    mutationFn: (newStatus: string) => updateDoc(doc.id, { status: newStatus }),
+    mutationFn: (newStatus: string) => updateDoc(doc!.id, { status: newStatus }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['doc', slug] });
     },
@@ -44,7 +44,7 @@ export default function DocViewPage() {
   };
 
   const handleCopyPublicLink = async () => {
-    const publicUrl = `${window.location.origin}/share/${doc.slug}`;
+    const publicUrl = `${window.location.origin}/share/${doc!.slug}`;
     const success = await copyToClipboard(publicUrl);
     if (success) {
       setIsLinkCopied(true);
@@ -171,7 +171,7 @@ export default function DocViewPage() {
           </div>
 
           {/* Tags Footer */}
-          {doc.tags?.length > 0 && (
+          {doc?.tags && doc.tags.length > 0 && (
             <div className="mt-20 pt-8 border-t border-border/50 flex flex-wrap gap-3">
               {doc.tags.map((t: any) => (
                 <div key={t.tag.id} className="flex items-center gap-2 rounded-xl border border-border bg-muted/30 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:border-primary/30 hover:text-primary transition-all cursor-pointer">
