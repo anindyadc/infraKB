@@ -10,6 +10,8 @@ This document contains foundational mandates for all AI agents working on the In
 - **Stateless Auth**: Use JWT for access tokens and DB-backed refresh tokens. Never store sensitive data in local storage on the frontend; use httpOnly cookies for refresh tokens and memory-based state for access tokens.
 - **Type Safety**: TypeScript is mandatory across both backend and frontend. Avoid `any` at all costs. Use Zod for runtime validation and Prisma for type-safe database queries.
 - **Markdown-Native**: Documents are stored as raw Markdown. The frontend is responsible for rendering. The rendering pipeline must include sanitization (`DOMPurify`).
+- **Clipboard Standard**: Never use `navigator.clipboard` directly in components. Always use the `copyToClipboard` utility from `src/lib/clipboard.ts` to ensure compatibility with non-secure (HTTP) environments.
+- **API Consistency**: When adding new features to the data layer, ensure both `src/api/express/` and `src/api/supabase/` implementations are updated to maintain dual-backend parity.
 
 ## 2. Coding Standards
 

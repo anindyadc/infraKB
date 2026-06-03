@@ -66,6 +66,9 @@ The seed script creates an initial administrator account:
 - **Global Keyboard Shortcuts:** Efficient navigation via high-performance shortcuts (press `?` for full map).
 - **User & Credential Management:** Full administrative control over operator accounts, roles (RBAC), and secure password resets.
 - **External Public Sharing:** Generate secure, read-only public links for runbooks to collaborate with external stakeholders.
+- **Markdown Import & Migration:**
+  - **Single File:** Instantly create documents by uploading `.md` or `.txt` files.
+  - **Bulk Import:** Migrate entire libraries at once by importing multiple files into specific categories within the Admin Panel.
 - **Premium Markdown Experience:** Industry-standard rendering with Mac-style code blocks, JetBrains Mono typography, and one-click copy.
 - **Mobile-Friendly & PWA:** Fully responsive UI installable as a standalone application.
 

@@ -62,7 +62,6 @@ The production stack consists of:
 2. **Firewall**: Ensure port 3306 (MySQL) is not exposed to the public internet. Only ports 80 and 443 should be open.
 3. **Secrets Management**: Use a secret manager or CI/CD secrets for your environment variables instead of hardcoding them in `.env` files on your server.
 4. **Backup**: Regularly back up the `mysql_prod_data` and `uploads_prod_data` Docker volumes.
-
 ## 🔄 Updating to a New Version
 
 To update InfraKB, pull the latest changes and rebuild:
@@ -72,3 +71,24 @@ git pull
 docker compose -f docker-compose.prod.yml up -d --build
 docker compose -f docker-compose.prod.yml exec backend npx prisma migrate deploy
 ```
+
+## ☁️ Cloud-Native Deployment (Supabase + GitHub Pages)
+
+InfraKB can be hosted entirely on GitHub Pages by using Supabase as the backend.
+
+### 1. Supabase Setup
+1. Create a new project on [Supabase](https://supabase.com).
+2. Go to the **SQL Editor** and run the contents of `supabase/schema.sql`.
+3. Note your **Project URL** and **Anon Key** from Project Settings > API.
+
+### 2. Configure GitHub Secrets
+In your GitHub repository, go to **Settings > Secrets and variables > Actions** and add:
+- `VITE_SUPABASE_URL`: Your Supabase Project URL.
+- `VITE_SUPABASE_ANON_KEY`: Your Supabase Anon Key.
+
+### 3. Deploy
+Push your changes to the `main` branch. The included GitHub Action (`.github/workflows/deploy-gh-pages.yml`) will automatically:
+1. Build the frontend with `VITE_BACKEND_TYPE=supabase`.
+2. Deploy the static assets to the `gh-pages` branch.
+3. Your app will be live at `https://<username>.github.io/<repo-name>/`.
+
