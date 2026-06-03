@@ -94,6 +94,14 @@ This means the PostgreSQL trigger wasn't successfully applied.
 A `406` error means your Row Level Security (RLS) policies are blocking you from reading your own profile. A `500` error during login or when fetching documents usually means you created a recursive RLS policy.
 - **The fix:** Apply the **PROFILE POLICIES & HELPER FUNCTIONS** block from `supabase/schema.sql` in your Supabase SQL Editor. This includes the `is_admin()` helper function, which safely checks roles without causing infinite recursion loops.
 
+#### 404 Not Found on RPC calls or View Count
+If the console shows a 404 for `rpc/increment_view_count` or `rpc/delete_document`.
+- **The fix:** You are missing the RPC functions in PostgreSQL. Run the **RPC FUNCTIONS** block from `supabase/schema.sql` in your Supabase SQL Editor.
+
+#### Delete button not working
+If clicking Delete does nothing or throws a 403 despite having RLS policies.
+- **The fix:** Document deletion with RLS is complex due to cascading constraints. Use the `delete_document` RPC function defined in `supabase/schema.sql` and ensure your browser cache is cleared with a hard refresh (Ctrl+F5).
+
 #### 403 Forbidden when saving or importing documents
 If the UI gets stuck on "Syncing" or the console shows a `403` when calling `POST /documents`, Postgres is blocking the insertion.
 - **The fix:** Your database is missing Write policies. Ensure you have run the `INSERT`, `UPDATE`, and `DELETE` RLS policies for `public.documents` found in the updated `supabase/schema.sql` file.

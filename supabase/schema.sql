@@ -114,6 +114,20 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+CREATE OR REPLACE FUNCTION public.delete_document(target_doc_id BIGINT)
+RETURNS void AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM public.documents 
+    WHERE id = target_doc_id AND (author_id = auth.uid() OR public.is_admin())
+  ) THEN
+    DELETE FROM public.documents WHERE id = target_doc_id;
+  ELSE
+    RAISE EXCEPTION 'Unauthorized to delete this document';
+  END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- ── AUTOMATIC VERSIONING TRIGGER ──────────────────────────
 CREATE OR REPLACE FUNCTION public.handle_document_version()
 RETURNS TRIGGER AS $$
