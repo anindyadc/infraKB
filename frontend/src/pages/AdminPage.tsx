@@ -383,6 +383,7 @@ function CategoryManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['docs'] });
       alert('Bulk import completed successfully.');
     },
     onError: (err: any) => {

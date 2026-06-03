@@ -35,8 +35,19 @@ export const docsService: IDocsService = {
 
     if (error) throw error;
 
+    // Map snake_case to camelCase to match Express API behavior
+    const mappedDocs = data?.map(doc => ({
+      ...doc,
+      updatedAt: doc.updated_at,
+      createdAt: doc.created_at,
+      categoryId: doc.category_id,
+      authorId: doc.author_id,
+      viewCount: doc.view_count,
+      isPinned: doc.is_pinned
+    })) || [];
+
     return {
-      docs: data as any[],
+      docs: mappedDocs,
       pagination: {
         page: Number(page),
         limit: Number(limit),
