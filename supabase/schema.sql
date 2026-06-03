@@ -137,6 +137,15 @@ CREATE POLICY "Authenticated users can view published docs" ON public.documents
 CREATE POLICY "Anyone can view PUBLIC docs" ON public.documents
   FOR SELECT USING (status = 'PUBLIC');
 
+CREATE POLICY "Users can insert own documents" ON public.documents
+  FOR INSERT WITH CHECK (auth.uid() = author_id);
+
+CREATE POLICY "Users can update own documents" ON public.documents
+  FOR UPDATE USING (auth.uid() = author_id);
+
+CREATE POLICY "Users can delete own documents" ON public.documents
+  FOR DELETE USING (auth.uid() = author_id);
+
 CREATE POLICY "Users can view all categories" ON public.categories
   FOR SELECT USING (auth.role() = 'authenticated');
 
