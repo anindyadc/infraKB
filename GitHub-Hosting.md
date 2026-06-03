@@ -55,4 +55,27 @@ docker compose -f docker-compose.prod.yml up -d
 
 To ensure the best experience on GitHub:
 - **Dependabot:** Enable Dependabot in **Settings -> Code security and analysis** to stay updated on security vulnerabilities.
-- **GitHub Pages:** Note that InfraKB requires a backend (Express + MySQL), so it cannot be hosted purely on GitHub Pages. Use a VPS or Docker hosting provider.
+
+### 🌐 Deploying Frontend to GitHub Pages (Supabase Mode)
+
+Thanks to the Dual-Backend Strategy, if you are using **Supabase**, you can host the React frontend entirely for free on GitHub Pages. The repository includes an automated workflow (`.github/workflows/deploy-gh-pages.yml`) for this purpose.
+
+**Mandatory Repository Configuration:**
+For the automated deployment to succeed and display correctly, you must configure two settings in your GitHub repository:
+
+#### 1. Grant Workflow Permissions
+By default, GitHub restricts workflows from pushing code. You must allow it to write to the `gh-pages` branch.
+1. Go to your repository on GitHub -> **Settings**.
+2. Scroll down the left sidebar to **Actions** -> **General**.
+3. Under **Workflow permissions**, select **Read and write permissions**.
+4. Click **Save**.
+
+#### 2. Configure Pages Source
+You must tell GitHub Pages to serve the compiled application, not your source code.
+1. Go to **Settings** -> **Pages**.
+2. Under **Build and deployment**, ensure **Source** is set to **Deploy from a branch**.
+3. Under **Branch**, select the **`gh-pages`** branch (not `main`).
+4. Ensure the folder is set to **`/(root)`**.
+5. Click **Save**.
+
+*Note: Ensure your `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are added to your repository's **Secrets and variables -> Actions** so the workflow can bake them into the production build.*
