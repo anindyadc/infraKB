@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getStats } from '../api/stats.api';
 import { getUsers, updateUser, createUser, deleteUser } from '../api/users.api';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../api/categories.api';
+import { createDoc } from '../api/docs.api';
 import { 
   Users, Activity, BarChart3, ShieldCheck, Cpu, Database, Network, 
-  Server, Plus, Edit2, Trash2, X, Check, Key, Folder, Sparkles, Hash
+  Server, Plus, Edit2, Trash2, X, Check, Key, Folder, Sparkles, Hash, FileUp
 } from 'lucide-react';
 
 export default function AdminPage() {
@@ -71,7 +72,7 @@ function TabButton({ active, onClick, icon, label }: any) {
       className={`flex items-center gap-2 rounded-xl px-6 py-2.5 text-xs font-black uppercase tracking-widest transition-all ${
         active 
           ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' 
-          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
       }`}
     >
       {icon}
@@ -338,6 +339,8 @@ function UserManagement() {
 
 function CategoryManagement() {
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importCategoryId, setImportCategoryId] = useState<number | null>(null);
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -367,10 +370,46 @@ function CategoryManagement() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['categories'] }),
   });
 
+  const bulkImportMutation = useMutation({
+    mutationFn: async ({ categoryId, files }: { categoryId: number, files: FileList }) => {
+      const promises = Array.from(files).map(async (file) => {
+        const title = file.name.replace(/\.[^/.]+$/, "");
+        const content = await file.text();
+        return createDoc({ title, content, categoryId });
+      });
+      return Promise.all(promises);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      alert('Bulk import completed successfully.');
+    },
+    onError: (err: any) => {
+      alert(`Bulk import failed: ${err.message}`);
+    }
+  });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && importCategoryId) {
+      bulkImportMutation.mutate({ categoryId: importCategoryId, files: e.target.files });
+    }
+    // Reset
+    e.target.value = '';
+    setImportCategoryId(null);
+  };
+
   if (isLoading) return <div className="text-[10px] font-black uppercase tracking-widest opacity-30">Scanning Registry Structure...</div>;
 
   return (
     <div className="space-y-6">
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        multiple 
+        accept=".md,.markdown,.txt" 
+        className="hidden" 
+      />
       <div className="flex justify-between items-center">
         <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/40">Knowledge Hierarchies</h3>
         <button 
@@ -383,7 +422,7 @@ function CategoryManagement() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories?.map((cat: any) => (
+        {categories?.categories?.map((cat: any) => (
           <div key={cat.id} className="group relative rounded-[2rem] border border-border/50 bg-card/40 p-8 shadow-xl backdrop-blur-sm hover:border-primary/30 transition-all overflow-hidden">
              {/* Decorative Background Icon */}
              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -395,6 +434,16 @@ function CategoryManagement() {
                    {cat.icon || '📁'}
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                   <button 
+                    onClick={() => {
+                      setImportCategoryId(cat.id);
+                      fileInputRef.current?.click();
+                    }}
+                    title="Bulk Import Markdown"
+                    className="p-2 rounded-lg bg-background border border-border hover:text-primary transition-all"
+                   >
+                      <FileUp className="h-3.5 w-3.5" />
+                   </button>
                    <button onClick={() => setEditingCategory(cat)} className="p-2 rounded-lg bg-background border border-border hover:text-primary transition-all">
                       <Edit2 className="h-3.5 w-3.5" />
                    </button>

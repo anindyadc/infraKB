@@ -1,5 +1,5 @@
 import { useUIStore } from '../../store/ui.store';
-import { X, Folder, Sparkles, Hash } from 'lucide-react';
+import { X, Folder, Sparkles, Hash, FileUp } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '../../api/categories.api';
 
@@ -14,6 +14,7 @@ interface NewDocBottomSheetProps {
   onTagsChange: (val: string) => void;
   onSave: () => void;
   isPending: boolean;
+  onImport?: () => void;
 }
 
 export default function NewDocBottomSheet({
@@ -26,7 +27,8 @@ export default function NewDocBottomSheet({
   tags,
   onTagsChange,
   onSave,
-  isPending
+  isPending,
+  onImport
 }: NewDocBottomSheetProps) {
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -119,13 +121,22 @@ export default function NewDocBottomSheet({
             </div>
           </div>
 
-          <button 
-            onClick={onSave}
-            disabled={isPending}
-            className="w-full h-14 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-[0.3em] text-xs shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2"
-          >
-            {isPending ? 'Syncing...' : 'Deploy Runbook'}
-          </button>
+          <div className="flex flex-col gap-3 pt-4">
+            <button 
+              onClick={onImport}
+              className="w-full h-14 bg-muted border border-border text-foreground rounded-2xl font-black uppercase tracking-[0.3em] text-xs active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              <FileUp className="h-4 w-4" />
+              <span>Import Markdown</span>
+            </button>
+            <button 
+              onClick={onSave}
+              disabled={isPending}
+              className="w-full h-14 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-[0.3em] text-xs shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              {isPending ? 'Syncing...' : 'Deploy Runbook'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

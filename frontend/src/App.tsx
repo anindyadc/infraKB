@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/auth.store';
 import { useUIStore } from './store/ui.store';
 import { getMe } from './api/users.api';
+import { copyToClipboard } from './lib/clipboard';
 import LoginPage from './pages/LoginPage';
 import KBPage from './pages/KBPage';
 import PublicDocPage from './pages/PublicDocPage';
@@ -65,26 +66,30 @@ function App() {
       const target = e.target as HTMLElement;
       const btn = target.closest('.copy-btn') as HTMLElement;
       
-      if (btn && btn.dataset.code) {
-        try {
-          const b64 = btn.dataset.code;
-          const code = decodeURIComponent(escape(atob(b64)));
-          
-          navigator.clipboard.writeText(code).then(() => {
-            const span = btn.querySelector('.btn-text');
-            if (span) {
-              const oldText = span.textContent;
-              span.textContent = 'COPIED!';
-              btn.classList.add('!text-emerald-500', '!border-emerald-500/50', '!bg-emerald-500/10');
-              
-              setTimeout(() => {
-                span.textContent = oldText;
-                btn.classList.remove('!text-emerald-500', '!border-emerald-500/50', '!bg-emerald-500/10');
-              }, 2000);
-            }
-          });
-        } catch (err) {
-          console.error('Copy failed', err);
+      if (btn) {
+        const b64 = btn.getAttribute('data-code');
+        if (b64) {
+          try {
+            const code = decodeURIComponent(atob(b64));
+            
+            copyToClipboard(code).then((success) => {
+              if (success) {
+                const span = btn.querySelector('.btn-text');
+                if (span) {
+                  const oldText = span.textContent;
+                  span.textContent = 'COPIED!';
+                  btn.classList.add('!text-emerald-500', '!border-emerald-500/50', '!bg-emerald-500/10');
+                  
+                  setTimeout(() => {
+                    span.textContent = oldText;
+                    btn.classList.remove('!text-emerald-500', '!border-emerald-500/50', '!bg-emerald-500/10');
+                  }, 2000);
+                }
+              }
+            });
+          } catch (err) {
+            console.error('Copy failed', err);
+          }
         }
       }
     };

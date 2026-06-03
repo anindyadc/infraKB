@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getDoc, updateDoc } from '../api/docs.api';
 import { useUIStore } from '../store/ui.store';
 import { renderMarkdown } from '../lib/markdown';
+import { copyToClipboard } from '../lib/clipboard';
 import { Edit2, Clock, User, Tag, Share2, Trash2, ChevronRight, Hash, Activity, Check, Globe, Lock, MoreVertical } from 'lucide-react';
 import 'highlight.js/styles/github.css';
 
@@ -34,17 +35,21 @@ export default function DocViewPage() {
     return () => setSelectedDocId(null);
   }, [doc, setSelectedDocId]);
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+  const handleShare = async () => {
+    const success = await copyToClipboard(window.location.href);
+    if (success) {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    }
   };
 
-  const handleCopyPublicLink = () => {
+  const handleCopyPublicLink = async () => {
     const publicUrl = `${window.location.origin}/share/${doc.slug}`;
-    navigator.clipboard.writeText(publicUrl);
-    setIsLinkCopied(true);
-    setTimeout(() => setIsLinkCopied(false), 2000);
+    const success = await copyToClipboard(publicUrl);
+    if (success) {
+      setIsLinkCopied(true);
+      setTimeout(() => setIsLinkCopied(false), 2000);
+    }
   };
 
   if (isLoading) return (

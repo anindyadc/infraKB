@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { createDoc } from '../api/docs.api';
 import { getCategories } from '../api/categories.api';
 import MarkdownEditor from '../components/editor/MarkdownEditor';
-import { Save, X, ChevronLeft, Folder, Sparkles, Hash } from 'lucide-react';
+import { Save, X, ChevronLeft, Folder, Sparkles, Hash, FileUp } from 'lucide-react';
 import NewDocBottomSheet from '../components/layout/NewDocBottomSheet';
 
 const DEFAULT_CONTENT = `# New Runbook
@@ -22,6 +22,7 @@ echo "Hello world"
 export default function NewDocPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [content, setContent] = useState(DEFAULT_CONTENT);
   const [title, setTitle] = useState('Untitled Runbook');
   const [categoryId, setCategoryId] = useState<number | ''>(0);
@@ -50,8 +51,35 @@ export default function NewDocPage() {
     });
   };
 
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Use filename (without extension) as title
+    const fileName = file.name.replace(/\.[^/.]+$/, "");
+    setTitle(fileName);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result;
+      if (typeof text === 'string') {
+        setContent(text);
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div className="flex h-full flex-col bg-background">
+      {/* Hidden file input */}
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleImport} 
+        accept=".md,.markdown,.txt" 
+        className="hidden" 
+      />
+
       {/* Desktop Header */}
       <div className="hidden md:flex items-center justify-between border-b border-border/50 bg-card/30 backdrop-blur-md px-6 py-4">
         <div className="flex items-center gap-6 flex-1">
@@ -104,6 +132,13 @@ export default function NewDocPage() {
         </div>
         <div className="flex items-center gap-3">
           <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-all"
+          >
+            <FileUp className="h-3.5 w-3.5" />
+            <span>Import Markdown</span>
+          </button>
+          <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-all"
           >
@@ -133,6 +168,7 @@ export default function NewDocPage() {
         onTagsChange={setTags}
         onSave={handleSave}
         isPending={mutation.isPending}
+        onImport={() => fileInputRef.current?.click()}
       />
 
       {/* Editor Content */}
