@@ -125,8 +125,12 @@ export const docsService: IDocsService = {
     return data as any;
   },
   delete: async (id) => {
-    const { error } = await supabase.from('documents').delete().eq('id', id);
-    if (error) throw error;
+    const { error } = await supabase.rpc('delete_document', { target_doc_id: id });
+    if (error) {
+      // Fallback to direct delete if RPC is missing (for older DBs)
+      const { error: directError } = await supabase.from('documents').delete().eq('id', id);
+      if (directError) throw directError;
+    }
     return { deleted: true };
   },
 };
