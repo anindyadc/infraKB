@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getDoc, updateDoc } from '../api/docs.api';
+import { getDoc, updateDoc, deleteDoc } from '../api/docs.api';
 import { useUIStore } from '../store/ui.store';
 import { renderMarkdown } from '../lib/markdown';
 import { copyToClipboard } from '../lib/clipboard';
@@ -10,6 +10,7 @@ import 'highlight.js/styles/github.css';
 
 export default function DocViewPage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isCopied, setIsCopied] = useState(false);
   const [isLinkCopied, setIsLinkCopied] = useState(false);
@@ -28,12 +29,30 @@ export default function DocViewPage() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteDoc(doc!.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['docs'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      navigate('/docs');
+    },
+    onError: (err: any) => {
+      alert(`Failed to delete document: ${err.message}`);
+    }
+  });
+
   useEffect(() => {
     if (doc) {
       setSelectedDocId(doc.id);
     }
     return () => setSelectedDocId(null);
   }, [doc, setSelectedDocId]);
+
+  const handleDelete = () => {
+    if (window.confirm('Are you sure you want to permanently delete this document?')) {
+      deleteMutation.mutate();
+    }
+  };
 
   const handleShare = async () => {
     const success = await copyToClipboard(window.location.href);
@@ -103,7 +122,12 @@ export default function DocViewPage() {
           >
             {isCopied ? <Check className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
           </button>
-          <button className="flex items-center justify-center h-9 w-9 rounded-xl border border-destructive/20 bg-destructive/5 text-destructive/60 hover:text-white hover:bg-destructive transition-all active:scale-90">
+          <button 
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending}
+            className="flex items-center justify-center h-9 w-9 rounded-xl border border-destructive/20 bg-destructive/5 text-destructive/60 hover:text-white hover:bg-destructive transition-all active:scale-90 disabled:opacity-50"
+            title="Delete Document"
+          >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>

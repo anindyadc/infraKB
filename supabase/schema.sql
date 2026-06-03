@@ -104,6 +104,16 @@ ALTER TABLE public.documents ADD COLUMN fts tsvector GENERATED ALWAYS AS (
 
 CREATE INDEX documents_fts_idx ON public.documents USING GIN (fts);
 
+-- ── RPC FUNCTIONS ─────────────────────────────────────────
+CREATE OR REPLACE FUNCTION public.increment_view_count(doc_id BIGINT)
+RETURNS void AS $$
+BEGIN
+  UPDATE public.documents
+  SET view_count = view_count + 1
+  WHERE id = doc_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- ── AUTOMATIC VERSIONING TRIGGER ──────────────────────────
 CREATE OR REPLACE FUNCTION public.handle_document_version()
 RETURNS TRIGGER AS $$
