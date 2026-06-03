@@ -8,4 +8,3 @@ export const attachmentsService: IAttachmentsService = backendType === 'supabase
 
 export const uploadAttachment = attachmentsService.upload;
 export const deleteAttachment = attachmentsService.delete;
- Broadway

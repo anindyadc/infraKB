@@ -8,4 +8,3 @@ export const tagsService: ITagsService = backendType === 'supabase' ? supabaseTa
 
 export const getTags = tagsService.getAll;
 export const deleteTag = tagsService.delete;
- Broadway

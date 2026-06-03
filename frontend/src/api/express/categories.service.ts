@@ -19,4 +19,3 @@ export const categoriesService: ICategoriesService = {
     return data.data;
   },
 };
- Broadway

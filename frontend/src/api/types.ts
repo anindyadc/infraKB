@@ -74,9 +74,11 @@ export interface ISearchService {
 export interface IStatsService {
   getStats(): Promise<any>;
 }
-
 export interface IUsersService {
+  getMe(): Promise<User>;
   getAll(params: any): Promise<{ data: User[]; pagination: Pagination }>;
+
+  create(payload: any): Promise<User>;
   update(id: number | string, payload: any): Promise<User>;
   delete(id: number | string): Promise<{ deleted: boolean }>;
 }

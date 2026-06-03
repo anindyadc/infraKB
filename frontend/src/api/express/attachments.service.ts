@@ -17,4 +17,3 @@ export const attachmentsService: IAttachmentsService = {
     return data.data;
   },
 };
- Broadway

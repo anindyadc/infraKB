@@ -14,33 +14,41 @@ InfraKB is a self-hosted, private knowledge base designed specifically for DevOp
    git clone <repo-url>
    cd infrakb
    cp .env.example .env
+   cp frontend/.env.example frontend/.env
    ```
 
-2. **Start Services**
+2. **Configure Backend Mode**
+   InfraKB supports two backend modes. Edit `frontend/.env` to switch:
+   - **Self-Hosted (MySQL/Express):** `VITE_BACKEND_TYPE="express"` (Default)
+   - **Cloud-Native (Supabase):** `VITE_BACKEND_TYPE="supabase"`
+
+3. **Start Services**
    ```bash
    docker compose up -d
    ```
 
-3. **Initialize Database**
+4. **Initialize Database**
    ```bash
-   # Sync schema and generate client
+   # For MySQL Mode:
    docker compose exec backend npx prisma db push
-   
-   # Populate initial admin and categories
    docker compose exec backend npm run seed
+   
+   # For Supabase Mode:
+   # Apply schema.sql to your Supabase project via SQL Editor.
    ```
 
-4. **Access the App**
+5. **Access the App**
    Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-### 🔑 Default Credentials
+### 🔑 Default Credentials (MySQL Mode)
 The seed script creates an initial administrator account:
 - **Email:** `admin@infrakb.local`
 - **Password:** `Admin123456`
 
 ## 🛠 Tech Stack
 
-- **Backend:** Node.js (Express), Prisma ORM, MySQL 8
+- **Backend Option A:** Node.js (Express), Prisma ORM, MySQL 8
+- **Backend Option B:** Supabase (PostgreSQL, Auth, Storage)
 - **Frontend:** React 18, Vite, TypeScript, Tailwind CSS (with Typography plugin)
 - **Editor:** CodeMirror 6 (with Markdown and syntax highlighting)
 - **State Management:** Zustand, TanStack Query v5

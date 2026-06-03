@@ -1,7 +1,17 @@
 import { supabase } from '../../lib/supabase';
 import { IUsersService } from '../types';
-
 export const usersService: IUsersService = {
+  getMe: async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('No session');
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+    if (error) throw error;
+    return profile as any;
+  },
   getAll: async (params) => {
     const { page = 1, limit = 20, role, search } = params;
     let query = supabase.from('profiles').select('*', { count: 'exact' });
@@ -28,6 +38,18 @@ export const usersService: IUsersService = {
       }
     };
   },
+  create: async (payload) => {
+    const { email, password, ...metadata } = payload;
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: metadata
+      }
+    });
+    if (error) throw error;
+    return data.user as any;
+  },
   update: async (id, payload) => {
     const { data, error } = await supabase
       .from('profiles')
@@ -48,4 +70,3 @@ export const usersService: IUsersService = {
     return { deleted: true };
   },
 };
- Broadway

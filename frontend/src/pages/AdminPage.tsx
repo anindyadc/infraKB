@@ -486,9 +486,10 @@ function CategoryManagement() {
                   </select>
                 </div>
               </div>
+            </div>
 
-              <button 
-                type="submit" 
+            <button 
+              type="submit" 
                 disabled={createMutation.isPending || updateMutation.isPending}
                 className="w-full rounded-xl bg-primary py-4 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
               >

@@ -4,7 +4,9 @@ This document contains foundational mandates for all AI agents working on the In
 
 ## 1. Architectural Principles
 
-- **Layered Backend**: Maintain a strict separation between Routers, Controllers, and Services. Logic must reside in Services.
+- **Dual-Backend Strategy**: The frontend must remain backend-agnostic. All data access must go through the `src/api/*.api.ts` abstraction layer using the Strategy Pattern.
+- **Dynamic Service Selection**: Use the `VITE_BACKEND_TYPE` environment variable ('express' | 'supabase') to determine which service implementation to use at runtime.
+- **Layered Backend**: For the Express backend, maintain a strict separation between Routers, Controllers, and Services. Logic must reside in Services.
 - **Stateless Auth**: Use JWT for access tokens and DB-backed refresh tokens. Never store sensitive data in local storage on the frontend; use httpOnly cookies for refresh tokens and memory-based state for access tokens.
 - **Type Safety**: TypeScript is mandatory across both backend and frontend. Avoid `any` at all costs. Use Zod for runtime validation and Prisma for type-safe database queries.
 - **Markdown-Native**: Documents are stored as raw Markdown. The frontend is responsible for rendering. The rendering pipeline must include sanitization (`DOMPurify`).

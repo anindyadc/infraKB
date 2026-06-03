@@ -8,4 +8,3 @@ export const searchService: ISearchService = backendType === 'supabase' ? supaba
 
 export const searchDocs = searchService.search;
 export const suggestDocs = searchService.suggest;
- Broadway
