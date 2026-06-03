@@ -94,6 +94,10 @@ This means the PostgreSQL trigger wasn't successfully applied.
 A `406` error means your Row Level Security (RLS) policies are blocking you from reading your own profile. A `500` error during login or when fetching documents usually means you created a recursive RLS policy.
 - **The fix:** Apply the **PROFILE POLICIES & HELPER FUNCTIONS** block from `supabase/schema.sql` in your Supabase SQL Editor. This includes the `is_admin()` helper function, which safely checks roles without causing infinite recursion loops.
 
+#### Bulk Import completes but documents don't appear
+When bypassing a traditional backend and hitting Supabase directly, required database constraints must be handled client-side. The database requires a unique `slug` for every document.
+- **The fix:** Ensure the `create` method in `docs.service.ts` includes logic to auto-generate a URL-friendly `slug` from the document title before executing the Supabase `.insert()`.
+
 #### 403 Forbidden on authentication requests
 - **The fix:** Verify that you have used the **`anon` (public)** API key in your `VITE_SUPABASE_ANON_KEY` secret. If you accidentally used the `service_role` key, the browser will reject the requests for security reasons.
 
