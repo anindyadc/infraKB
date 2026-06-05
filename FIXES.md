@@ -11,7 +11,11 @@
 - **Data Mapping Layer:** Implemented `mapDocument`, `mapCategory`, and `mapUser` helpers to convert Supabase `snake_case` fields to frontend `camelCase`.
 - **Document Persistence:** Fixed `update` logic in `docs.service.ts` to correctly handle `category_id`, `os_env`, and `status`.
 - **Tag Support:** Fully implemented tag upsert and association logic for Supabase.
-- **Admin RLS Policies:** Updated PostgreSQL schema to allow users with 'ADMIN' role to modify/delete any document.
+- **RBAC & RLS Overhaul:** 
+    - Updated `handle_new_user` trigger to default to 'EDITOR' role (matching local behavior).
+    - Implemented `can_edit()` and `is_admin()` SQL helpers for robust policy enforcement.
+    - Added comprehensive RLS policies for all tables (`profiles`, `categories`, `documents`, `tags`, `doc_tags`, `doc_versions`, `attachments`, `activity_logs`).
+    - Fixed `403 Forbidden` on document updates by allowing EDITORS to view/select DRAFT documents.
 - **ID Consistency:** Improved ID vs Slug detection logic in API calls.
 
 ## 3. UI/UX Refinements

@@ -104,6 +104,30 @@ ALTER TABLE public.documents ADD COLUMN fts tsvector GENERATED ALWAYS AS (
 
 CREATE INDEX documents_fts_idx ON public.documents USING GIN (fts);
 
+-- ── RBAC HELPER FUNCTIONS ─────────────────────────────────
+
+-- Helper function to check if user is admin
+CREATE OR REPLACE FUNCTION public.is_admin() 
+RETURNS boolean AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() AND role = 'ADMIN'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Helper function to check if user can edit (ADMIN or EDITOR)
+CREATE OR REPLACE FUNCTION public.can_edit() 
+RETURNS boolean AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() AND role IN ('ADMIN', 'EDITOR')
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- ── RPC FUNCTIONS ─────────────────────────────────────────
 CREATE OR REPLACE FUNCTION public.increment_view_count(doc_id BIGINT)
 RETURNS void AS $$
@@ -134,12 +158,13 @@ RETURNS TRIGGER AS $$
 BEGIN
   IF (TG_OP = 'UPDATE') THEN
     INSERT INTO public.doc_versions (doc_id, content, title, edited_by)
-    VALUES (OLD.id, OLD.content, OLD.title, OLD.author_id);
+    VALUES (OLD.id, OLD.content, OLD.title, auth.uid());
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS on_document_update ON public.documents;
 CREATE TRIGGER on_document_update
   BEFORE UPDATE ON public.documents
   FOR EACH ROW EXECUTE FUNCTION public.handle_document_version();
@@ -154,69 +179,76 @@ ALTER TABLE public.doc_versions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.attachments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
 
--- Basic Policies (Public access to published docs if authenticated)
-CREATE POLICY "Authenticated users can view published docs" ON public.documents
-  FOR SELECT USING (auth.role() = 'authenticated' AND status IN ('PUBLISHED', 'PUBLIC'));
+-- 1. Profiles
+CREATE POLICY "Authenticated users can view all profiles" ON public.profiles
+  FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Users can update own profile" ON public.profiles 
+  FOR UPDATE USING (auth.uid() = id);
+
+CREATE POLICY "Admins can manage all profiles" ON public.profiles 
+  FOR ALL USING (public.is_admin());
+
+-- 2. Categories
+CREATE POLICY "Anyone can view categories" ON public.categories
+  FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Admins can manage categories" ON public.categories
+  FOR ALL USING (public.is_admin());
+
+-- 3. Documents
+CREATE POLICY "Authenticated users can view authorized docs" ON public.documents
+  FOR SELECT USING (
+    auth.role() = 'authenticated' AND 
+    (status IN ('PUBLISHED', 'PUBLIC') OR public.can_edit() OR author_id = auth.uid())
+  );
 
 CREATE POLICY "Anyone can view PUBLIC docs" ON public.documents
   FOR SELECT USING (status = 'PUBLIC');
 
-CREATE POLICY "Users can insert own documents" ON public.documents
-  FOR INSERT WITH CHECK (auth.uid() = author_id);
+CREATE POLICY "Editors and Admins can insert documents" ON public.documents
+  FOR INSERT WITH CHECK (public.can_edit() AND (auth.uid() = author_id OR public.is_admin()));
 
-CREATE POLICY "Users can update own documents or admins can update any" ON public.documents
-  FOR UPDATE USING (auth.uid() = author_id OR public.is_admin());
+CREATE POLICY "Editors and Admins can update documents" ON public.documents
+  FOR UPDATE USING (public.can_edit());
 
 CREATE POLICY "Users can delete own documents or admins can delete any" ON public.documents
   FOR DELETE USING (auth.uid() = author_id OR public.is_admin());
 
--- Child table cascading delete policies
-CREATE POLICY "Users can delete own doc_versions" ON public.doc_versions
-  FOR DELETE USING (EXISTS (SELECT 1 FROM public.documents WHERE id = doc_id AND author_id = auth.uid()));
-
-CREATE POLICY "Users can delete own doc_tags" ON public.doc_tags
-  FOR DELETE USING (EXISTS (SELECT 1 FROM public.documents WHERE id = doc_id AND author_id = auth.uid()));
-
-CREATE POLICY "Users can delete own attachments" ON public.attachments
-  FOR DELETE USING (EXISTS (SELECT 1 FROM public.documents WHERE id = doc_id AND author_id = auth.uid()));
-
-CREATE POLICY "Users can view all categories" ON public.categories
+-- 4. Tags
+CREATE POLICY "Anyone can view tags" ON public.tags
   FOR SELECT USING (auth.role() = 'authenticated');
 
--- More complex RBAC policies would be added here based on 'profiles.role'
+CREATE POLICY "Editors and Admins can manage tags" ON public.tags
+  FOR ALL USING (public.can_edit());
 
--- ── PROFILE POLICIES & HELPER FUNCTIONS ───────────────────
--- Helper function to check admin status without triggering infinite recursion on profiles table
-CREATE OR REPLACE FUNCTION public.is_admin() 
-RETURNS boolean AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM public.profiles 
-    WHERE id = auth.uid() AND role = 'ADMIN'
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- 5. Doc Tags
+CREATE POLICY "Anyone can view doc_tags" ON public.doc_tags
+  FOR SELECT USING (auth.role() = 'authenticated');
 
--- Users can view their own profile
-CREATE POLICY "Users can view own profile" 
-ON public.profiles 
-FOR SELECT 
-TO authenticated 
-USING (auth.uid() = id);
+CREATE POLICY "Editors and Admins can manage doc_tags" ON public.doc_tags
+  FOR ALL USING (public.can_edit());
 
--- Users can update their own profile
-CREATE POLICY "Users can update own profile" 
-ON public.profiles 
-FOR UPDATE 
-TO authenticated 
-USING (auth.uid() = id);
+-- 6. Doc Versions
+CREATE POLICY "Anyone can view doc_versions" ON public.doc_versions
+  FOR SELECT USING (auth.role() = 'authenticated');
 
--- Admins can view all profiles
-CREATE POLICY "Admins can view all profiles" 
-ON public.profiles 
-FOR SELECT 
-TO authenticated 
-USING (public.is_admin());
+CREATE POLICY "Editors and Admins can manage doc_versions" ON public.doc_versions
+  FOR ALL USING (public.can_edit());
+
+-- 7. Attachments
+CREATE POLICY "Anyone can view attachments" ON public.attachments
+  FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Editors and Admins can manage attachments" ON public.attachments
+  FOR ALL USING (public.can_edit());
+
+-- 8. Activity Logs
+CREATE POLICY "Admins can view activity logs" ON public.activity_logs
+  FOR SELECT USING (public.is_admin());
+
+CREATE POLICY "Authenticated users can insert activity logs" ON public.activity_logs
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
 -- ── AUTH TRIGGER ──────────────────────────────────────────
 -- Function to automatically create a profile when a new user signs up via Supabase Auth
@@ -248,8 +280,8 @@ BEGIN
     base_name || '_' || floor(random() * 9999 + 1000)::text,
     -- Display Name: metadata or base_name
     COALESCE(NEW.raw_user_meta_data->>'displayName', base_name),
-    -- First user is ADMIN, others are VIEWER
-    CASE WHEN is_first_user THEN 'ADMIN'::public.user_role ELSE 'VIEWER'::public.user_role END,
+    -- First user is ADMIN, others are EDITOR
+    CASE WHEN is_first_user THEN 'ADMIN'::public.user_role ELSE 'EDITOR'::public.user_role END,
     TRUE
   );
 
@@ -265,4 +297,3 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
