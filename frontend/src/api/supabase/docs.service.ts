@@ -85,8 +85,10 @@ export const docsService: IDocsService = {
 
     if (error) throw error;
     
-    // Increment view count
-    await supabase.rpc('increment_view_count', { doc_id: data.id });
+    // Increment view count (fire and forget)
+    supabase.rpc('increment_view_count', { doc_id: data.id }).then(({error}) => {
+       if (error) console.warn('View count increment failed', error);
+    });
 
     return mapDocument(data);
   },
@@ -109,7 +111,7 @@ export const docsService: IDocsService = {
       author_id: user.id 
     };
 
-    if (categoryId !== undefined && categoryId !== 0) {
+    if (categoryId !== undefined && categoryId !== 0 && categoryId !== null) {
       insertPayload.category_id = categoryId;
     }
 
@@ -121,15 +123,19 @@ export const docsService: IDocsService = {
 
     if (error) throw error;
 
-    // Handle tags
+    // Handle tags in parallel
     if (tags && tags.length > 0) {
-       for (const tagName of tags) {
+       await Promise.all(tags.map(async (tagName: string) => {
          const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-         const { data: tagData } = await supabase.from('tags').upsert({ name: tagName, slug: tagSlug }).select().single();
+         const { data: tagData } = await supabase
+           .from('tags')
+           .upsert({ name: tagName, slug: tagSlug }, { onConflict: 'slug' })
+           .select()
+           .single();
          if (tagData) {
-           await supabase.from('doc_tags').insert({ doc_id: data.id, tag_id: tagData.id });
+           await supabase.from('doc_tags').upsert({ doc_id: data.id, tag_id: tagData.id }, { onConflict: 'doc_id,tag_id' });
          }
-       }
+       }));
     }
 
     return mapDocument(data);
@@ -145,7 +151,7 @@ export const docsService: IDocsService = {
     if (docData.isPinned !== undefined) updatePayload.is_pinned = docData.isPinned;
     
     if (categoryId !== undefined) {
-      updatePayload.category_id = categoryId === 0 ? null : categoryId;
+      updatePayload.category_id = (categoryId === 0 || categoryId === null) ? null : categoryId;
     }
     
     updatePayload.updated_at = new Date().toISOString();
@@ -159,15 +165,22 @@ export const docsService: IDocsService = {
 
     if (error) throw error;
 
-    // Handle tags (simplified: delete and re-add)
+    // Handle tags
     if (tags !== undefined) {
+      // For simplicity in RLS environment, we delete and re-add or use upsert
       await supabase.from('doc_tags').delete().eq('doc_id', id);
-      for (const tagName of tags) {
-        const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        const { data: tagData } = await supabase.from('tags').upsert({ name: tagName, slug: tagSlug }).select().single();
-        if (tagData) {
-          await supabase.from('doc_tags').insert({ doc_id: id, tag_id: tagData.id });
-        }
+      if (tags.length > 0) {
+        await Promise.all(tags.map(async (tagName: string) => {
+          const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          const { data: tagData } = await supabase
+            .from('tags')
+            .upsert({ name: tagName, slug: tagSlug }, { onConflict: 'slug' })
+            .select()
+            .single();
+          if (tagData) {
+            await supabase.from('doc_tags').upsert({ doc_id: id, tag_id: tagData.id }, { onConflict: 'doc_id,tag_id' });
+          }
+        }));
       }
     }
 

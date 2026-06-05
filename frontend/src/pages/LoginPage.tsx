@@ -61,12 +61,12 @@ export default function LoginPage() {
         {/* Background Image with Overlay */}
         <div 
           className="absolute inset-0 bg-cover bg-center transition-transform duration-[10000ms] hover:scale-110"
-          style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop")' }}
+          style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=100&w=2560&auto=format&fit=max")' }}
         />
         <div className="absolute inset-0 bg-gradient-to-tr from-[#0d1117] via-[#0d1117]/90 to-transparent" />
         
         {/* Animated Grid Pattern */}
-        <div className="absolute inset-0 bg-noise opacity-20" />
+        <div className="absolute inset-0 bg-noise opacity-[0.03]" />
         
         <div className="relative z-10 flex flex-col justify-between p-16 w-full text-white">
           <div>

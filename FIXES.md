@@ -16,6 +16,9 @@
     - Implemented `can_edit()` and `is_admin()` SQL helpers for robust policy enforcement.
     - Added comprehensive RLS policies for all tables (`profiles`, `categories`, `documents`, `tags`, `doc_tags`, `doc_versions`, `attachments`, `activity_logs`).
     - Fixed `403 Forbidden` on document updates by allowing EDITORS to view/select DRAFT documents.
+- **Reliability:** Hardened Supabase tag processing using parallel `Promise.all` and explicit `onConflict` resolution.
+- **Error Handling:** Added `onError` to `DocEditPage` to prevent UI hanging on failed syncs.
+- **Login Visuals:** Fixed pixelated backdrop by reducing noise opacity (20% -> 3%) and increasing image resolution/quality.
 - **ID Consistency:** Improved ID vs Slug detection logic in API calls.
 
 ## 3. UI/UX Refinements

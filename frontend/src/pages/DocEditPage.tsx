@@ -42,11 +42,13 @@ export default function DocEditPage() {
 const mutation = useMutation({
   mutationFn: (data: any) => updateDoc(doc!.id, data),
   onSuccess: (updatedDoc) => {
-
       queryClient.invalidateQueries({ queryKey: ['doc', slug] });
       queryClient.invalidateQueries({ queryKey: ['docs'] });
       navigate(`/docs/${updatedDoc.slug}`);
     },
+    onError: (err: any) => {
+      alert(`Sync failed: ${err.message || 'Unknown error'}`);
+    }
   });
 
   const handleSave = () => {
