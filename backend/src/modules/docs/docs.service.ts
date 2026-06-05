@@ -199,7 +199,7 @@ export class DocsService {
   }
 
   private static async generateSlug(title: string) {
-    const baseSlug = slugify.default(title, { lower: true, strict: true });
+    const baseSlug = slugify(title, { lower: true, strict: true });
     let slug = baseSlug;
     let counter = 1;
     while (await prisma.document.findUnique({ where: { slug } })) {
@@ -220,7 +220,7 @@ export class DocsService {
   private static async getOrCreateTags(tagNames: string[]) {
     const tagMappings = [];
     for (const name of tagNames) {
-      const slug = slugify.default(name, { lower: true, strict: true });
+      const slug = slugify(name, { lower: true, strict: true });
       const tag = await prisma.tag.upsert({
         where: { slug },
         update: {},

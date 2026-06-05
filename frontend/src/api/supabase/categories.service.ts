@@ -1,5 +1,13 @@
 import { supabase } from '../../lib/supabase';
-import { ICategoriesService } from '../types';
+import { ICategoriesService, Category } from '../types';
+
+const mapCategory = (cat: any): Category => ({
+  ...cat,
+  parentId: cat.parent_id,
+  sortOrder: cat.sort_order,
+  children: cat.children?.map(mapCategory) || [],
+  _count: cat._count ? (Array.isArray(cat._count) ? { docs: cat._count[0].count } : { docs: cat._count.docs || cat._count.count || 0 }) : undefined
+});
 
 export const categoriesService: ICategoriesService = {
   getAll: async () => {
@@ -19,28 +27,39 @@ export const categoriesService: ICategoriesService = {
     if (unError) throw unError;
 
     return { 
-      categories: categories.map(c => ({ ...c, _count: { docs: c._count[0].count } })), 
+      categories: categories.map(mapCategory), 
       uncategorizedCount: uncategorizedCount || 0 
     };
   },
   create: async (payload) => {
+    const { parentId, sortOrder, ...catData } = payload;
+    const insertPayload = {
+      ...catData,
+      parent_id: parentId,
+      sort_order: sortOrder
+    };
     const { data, error } = await supabase
       .from('categories')
-      .insert(payload)
+      .insert(insertPayload)
       .select()
       .single();
     if (error) throw error;
-    return data as any;
+    return mapCategory(data);
   },
   update: async (id, payload) => {
+    const { parentId, sortOrder, ...catData } = payload;
+    const updatePayload: any = { ...catData };
+    if (parentId !== undefined) updatePayload.parent_id = parentId;
+    if (sortOrder !== undefined) updatePayload.sort_order = sortOrder;
+
     const { data, error } = await supabase
       .from('categories')
-      .update(payload)
+      .update(updatePayload)
       .eq('id', id)
       .select()
       .single();
     if (error) throw error;
-    return data as any;
+    return mapCategory(data);
   },
   delete: async (id) => {
     const { error } = await supabase.from('categories').delete().eq('id', id);

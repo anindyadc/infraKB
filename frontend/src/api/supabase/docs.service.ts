@@ -1,6 +1,36 @@
 import { supabase } from '../../lib/supabase';
 import { IDocsService, Document } from '../types';
 
+const mapDocument = (doc: any): Document => ({
+  ...doc,
+  id: doc.id,
+  title: doc.title,
+  slug: doc.slug,
+  content: doc.content,
+  excerpt: doc.excerpt,
+  categoryId: doc.category_id,
+  authorId: doc.author_id,
+  osEnv: doc.os_env,
+  status: doc.status,
+  isPinned: doc.is_pinned,
+  viewCount: doc.view_count,
+  createdAt: doc.created_at,
+  updatedAt: doc.updated_at,
+  publishedAt: doc.published_at,
+  category: doc.category ? {
+    ...doc.category,
+    parentId: doc.category.parent_id,
+    sortOrder: doc.category.sort_order
+  } : undefined,
+  author: doc.author ? {
+    id: doc.author.id,
+    username: doc.author.username,
+    displayName: doc.author.display_name,
+    avatarUrl: doc.author.avatar_url
+  } : undefined,
+  tags: doc.tags || []
+});
+
 export const docsService: IDocsService = {
   getAll: async (params) => {
     const { category, tag, author, status = 'PUBLISHED', page = 1, limit = 20, sort = 'updated_at', order = 'desc' } = params;
@@ -35,19 +65,8 @@ export const docsService: IDocsService = {
 
     if (error) throw error;
 
-    // Map snake_case to camelCase to match Express API behavior
-    const mappedDocs = data?.map(doc => ({
-      ...doc,
-      updatedAt: doc.updated_at,
-      createdAt: doc.created_at,
-      categoryId: doc.category_id,
-      authorId: doc.author_id,
-      viewCount: doc.view_count,
-      isPinned: doc.is_pinned
-    })) || [];
-
     return {
-      docs: mappedDocs,
+      docs: data?.map(mapDocument) || [],
       pagination: {
         page: Number(page),
         limit: Number(limit),
@@ -57,19 +76,19 @@ export const docsService: IDocsService = {
     };
   },
   getOne: async (idOrSlug) => {
-    const isUuid = idOrSlug.length === 36; // Simple check for UUID vs Slug
+    const isId = /^\d+$/.test(idOrSlug);
     const { data, error } = await supabase
       .from('documents')
       .select('*, category:categories(*), author:profiles(*), tags:doc_tags(tag:tags(*)), attachments(*)')
-      .or(isUuid ? `id.eq.${idOrSlug}` : `slug.eq.${idOrSlug}`)
+      .or(isId ? `id.eq.${idOrSlug}` : `slug.eq.${idOrSlug}`)
       .single();
 
     if (error) throw error;
     
-    // Increment view count (Simple RPC or update)
+    // Increment view count
     await supabase.rpc('increment_view_count', { doc_id: data.id });
 
-    return data as any;
+    return mapDocument(data);
   },
   create: async (payload) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -77,17 +96,20 @@ export const docsService: IDocsService = {
 
     const { tags, categoryId, ...docData } = payload as any;
     
-    // Generate a URL-friendly slug from the title if not provided
     const baseSlug = docData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     const uniqueSlug = `${baseSlug}-${Math.floor(Math.random() * 10000)}`;
 
     const insertPayload: any = { 
-      ...docData, 
+      title: docData.title,
+      content: docData.content,
+      status: docData.status || 'PUBLISHED',
+      os_env: docData.osEnv,
+      is_pinned: docData.isPinned || false,
       slug: uniqueSlug, 
       author_id: user.id 
     };
 
-    if (categoryId !== undefined) {
+    if (categoryId !== undefined && categoryId !== 0) {
       insertPayload.category_id = categoryId;
     }
 
@@ -99,20 +121,34 @@ export const docsService: IDocsService = {
 
     if (error) throw error;
 
-    // Handle tags if provided
+    // Handle tags
     if (tags && tags.length > 0) {
-       // Logic to insert tags and links
+       for (const tagName of tags) {
+         const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+         const { data: tagData } = await supabase.from('tags').upsert({ name: tagName, slug: tagSlug }).select().single();
+         if (tagData) {
+           await supabase.from('doc_tags').insert({ doc_id: data.id, tag_id: tagData.id });
+         }
+       }
     }
 
-    return data as any;
+    return mapDocument(data);
   },
   update: async (id, payload) => {
     const { tags, changeSummary, categoryId, ...docData } = payload as any;
     
-    const updatePayload: any = { ...docData };
+    const updatePayload: any = {};
+    if (docData.title !== undefined) updatePayload.title = docData.title;
+    if (docData.content !== undefined) updatePayload.content = docData.content;
+    if (docData.status !== undefined) updatePayload.status = docData.status;
+    if (docData.osEnv !== undefined) updatePayload.os_env = docData.osEnv;
+    if (docData.isPinned !== undefined) updatePayload.is_pinned = docData.isPinned;
+    
     if (categoryId !== undefined) {
       updatePayload.category_id = categoryId === 0 ? null : categoryId;
     }
+    
+    updatePayload.updated_at = new Date().toISOString();
 
     const { data, error } = await supabase
       .from('documents')
@@ -122,12 +158,24 @@ export const docsService: IDocsService = {
       .single();
 
     if (error) throw error;
-    return data as any;
+
+    // Handle tags (simplified: delete and re-add)
+    if (tags !== undefined) {
+      await supabase.from('doc_tags').delete().eq('doc_id', id);
+      for (const tagName of tags) {
+        const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const { data: tagData } = await supabase.from('tags').upsert({ name: tagName, slug: tagSlug }).select().single();
+        if (tagData) {
+          await supabase.from('doc_tags').insert({ doc_id: id, tag_id: tagData.id });
+        }
+      }
+    }
+
+    return mapDocument(data);
   },
   delete: async (id) => {
     const { error } = await supabase.rpc('delete_document', { target_doc_id: id });
     if (error) {
-      // Fallback to direct delete if RPC is missing (for older DBs)
       const { error: directError } = await supabase.from('documents').delete().eq('id', id);
       if (directError) throw directError;
     }

@@ -135,7 +135,7 @@ export default function NewDocBottomSheet({
               className="w-full h-16 bg-muted border border-border text-foreground rounded-2xl font-black uppercase tracking-[0.3em] text-[11px] active:scale-95 transition-all flex items-center justify-center gap-3 hover:bg-muted/70"
             >
               <FileUp className="h-5 w-5 text-primary/60" />
-              <span>Bulk Import Mode</span>
+              <span>Import from File</span>
             </button>
             <button 
               onClick={onSave}

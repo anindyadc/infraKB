@@ -24,7 +24,7 @@ export class CategoriesService {
   }
 
   static async create(data: { name: string; icon?: string; description?: string; parentId?: number; sortOrder?: number }) {
-    const slug = slugify.default(data.name, { lower: true });
+    const slug = slugify(data.name, { lower: true });
     return prisma.category.create({
       data: {
         ...data,
@@ -36,7 +36,7 @@ export class CategoriesService {
   static async update(id: number, data: { name?: string; icon?: string; description?: string; parentId?: number; sortOrder?: number }) {
     const updateData: any = { ...data };
     if (data.name) {
-      updateData.slug = slugify.default(data.name, { lower: true });
+      updateData.slug = slugify(data.name, { lower: true });
     }
     return prisma.category.update({
       where: { id },

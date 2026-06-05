@@ -1,0 +1,19 @@
+# Recent Fixes and Improvements - June 6, 2026
+
+## 1. Bulk Import Improvements
+- **Increased Payload Limit:** Express JSON body limit increased from 100KB to 10MB to support large markdown files.
+- **Sequential Processing:** Frontend now processes bulk imports sequentially to prevent slug collision race conditions.
+- **Root Import Support:** Added ability to bulk import documents directly into the root directory.
+- **Progress Feedback:** Added "Bulk Sync in Progress" status indicator and detailed success/failure reports.
+- **Slugify Fix:** Corrected backend usage of `slugify` library (removed incorrect `.default` calls).
+
+## 2. Supabase Integration Fixes (GitHub Pages Deployment)
+- **Data Mapping Layer:** Implemented `mapDocument`, `mapCategory`, and `mapUser` helpers to convert Supabase `snake_case` fields to frontend `camelCase`.
+- **Document Persistence:** Fixed `update` logic in `docs.service.ts` to correctly handle `category_id`, `os_env`, and `status`.
+- **Tag Support:** Fully implemented tag upsert and association logic for Supabase.
+- **Admin RLS Policies:** Updated PostgreSQL schema to allow users with 'ADMIN' role to modify/delete any document.
+- **ID Consistency:** Improved ID vs Slug detection logic in API calls.
+
+## 3. UI/UX Refinements
+- **Clarity:** Renamed "Bulk Import Mode" in the editor to "Import from File" to distinguish it from the true Bulk Import tool in the Admin panel.
+- **Safety:** Disabled import buttons while a sync is already active.

@@ -342,6 +342,7 @@ function CategoryManagement() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importCategoryId, setImportCategoryId] = useState<number | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -371,29 +372,44 @@ function CategoryManagement() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['categories'] }),
   });
 
-  const bulkImportMutation = useMutation({
-    mutationFn: async ({ categoryId, files }: { categoryId: number, files: FileList }) => {
-      const promises = Array.from(files).map(async (file) => {
+  const bulkImport = async ({ categoryId, files }: { categoryId: number | null, files: FileList }) => {
+    setIsImporting(true);
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
+    for (const file of Array.from(files)) {
+      try {
         const title = file.name.replace(/\.[^/.]+$/, "");
         const content = await file.text();
-        return createDoc({ title, content, categoryId });
-      });
-      return Promise.all(promises);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
-      queryClient.invalidateQueries({ queryKey: ['docs'] });
-      alert('Bulk import completed successfully.');
-    },
-    onError: (err: any) => {
-      alert(`Bulk import failed: ${err.message}`);
+        await createDoc({ 
+          title, 
+          content, 
+          categoryId: categoryId === 0 ? null : categoryId 
+        });
+        successCount++;
+      } catch (err: any) {
+        failCount++;
+        errors.push(`${file.name}: ${err.message}`);
+      }
     }
-  });
+
+    queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    queryClient.invalidateQueries({ queryKey: ['categories'] });
+    queryClient.invalidateQueries({ queryKey: ['docs'] });
+    
+    setIsImporting(false);
+    
+    if (failCount === 0) {
+      alert(`Successfully imported ${successCount} documents.`);
+    } else {
+      alert(`Import completed with issues.\nSuccess: ${successCount}\nFailed: ${failCount}\n\nErrors:\n${errors.join('\n')}`);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && importCategoryId) {
-      bulkImportMutation.mutate({ categoryId: importCategoryId, files: e.target.files });
+    if (e.target.files) {
+      bulkImport({ categoryId: importCategoryId, files: e.target.files });
     }
     // Reset
     e.target.value = '';
@@ -413,14 +429,36 @@ function CategoryManagement() {
         className="hidden" 
       />
       <div className="flex justify-between items-center">
-        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/40">Knowledge Hierarchies</h3>
-        <button 
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          <span>New Hierarchy</span>
-        </button>
+        <div className="flex items-center gap-4">
+          <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/40">Knowledge Hierarchies</h3>
+          {isImporting && (
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 animate-pulse">
+               <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+               <span className="text-[9px] font-black uppercase tracking-widest text-primary">Bulk Sync in Progress...</span>
+            </div>
+          )}
+        </div>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => {
+              setImportCategoryId(null);
+              fileInputRef.current?.click();
+            }}
+            disabled={isImporting}
+            className="flex items-center gap-2 rounded-xl bg-muted/50 border border-border/50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all disabled:opacity-50"
+          >
+            <FileUp className="h-3.5 w-3.5" />
+            <span>Bulk Import (Root)</span>
+          </button>
+          <button 
+            onClick={() => setShowAddModal(true)}
+            disabled={isImporting}
+            className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all disabled:opacity-50"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>New Hierarchy</span>
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -441,8 +479,9 @@ function CategoryManagement() {
                       setImportCategoryId(cat.id);
                       fileInputRef.current?.click();
                     }}
+                    disabled={isImporting}
                     title="Bulk Import Markdown"
-                    className="p-2 rounded-lg bg-background border border-border hover:text-primary transition-all"
+                    className="p-2 rounded-lg bg-background border border-border hover:text-primary transition-all disabled:opacity-50"
                    >
                       <FileUp className="h-3.5 w-3.5" />
                    </button>

@@ -164,11 +164,11 @@ CREATE POLICY "Anyone can view PUBLIC docs" ON public.documents
 CREATE POLICY "Users can insert own documents" ON public.documents
   FOR INSERT WITH CHECK (auth.uid() = author_id);
 
-CREATE POLICY "Users can update own documents" ON public.documents
-  FOR UPDATE USING (auth.uid() = author_id);
+CREATE POLICY "Users can update own documents or admins can update any" ON public.documents
+  FOR UPDATE USING (auth.uid() = author_id OR public.is_admin());
 
-CREATE POLICY "Users can delete own documents" ON public.documents
-  FOR DELETE USING (auth.uid() = author_id);
+CREATE POLICY "Users can delete own documents or admins can delete any" ON public.documents
+  FOR DELETE USING (auth.uid() = author_id OR public.is_admin());
 
 -- Child table cascading delete policies
 CREATE POLICY "Users can delete own doc_versions" ON public.doc_versions

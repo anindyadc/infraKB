@@ -159,7 +159,7 @@ export default function NewDocPage() {
             className="hidden lg:flex items-center gap-2 px-5 py-3 rounded-2xl border border-border bg-background text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:border-primary/30 hover:text-primary hover:bg-primary/5 transition-all active:scale-95 group"
           >
             <FileUp className="h-4 w-4 transition-transform group-hover:-translate-y-0.5" />
-            <span>Import Markdown</span>
+            <span>Import from File</span>
           </button>
           
           <button

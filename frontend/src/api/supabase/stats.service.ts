@@ -3,8 +3,6 @@ import { IStatsService } from '../types';
 
 export const statsService: IStatsService = {
   getStats: async () => {
-    // This would ideally be a database view or RPC in Supabase
-    // for efficiency, but here we do multiple queries.
     const [
       { count: totalDocs },
       { count: publishedDocs },
@@ -22,12 +20,12 @@ export const statsService: IStatsService = {
     ]);
 
     return {
-      totalDocs,
-      publishedDocs,
-      draftDocs,
-      totalUsers,
-      recentDocs,
-      topViewedDocs
+      totalDocs: totalDocs || 0,
+      publishedDocs: publishedDocs || 0,
+      draftDocs: draftDocs || 0,
+      totalUsers: totalUsers || 0,
+      recentDocs: (recentDocs || []).map((d: any) => ({ ...d, updatedAt: d.updated_at, authorId: d.author_id })),
+      topViewedDocs: (topViewedDocs || []).map((d: any) => ({ ...d, viewCount: d.view_count }))
     };
   },
 };

@@ -1,5 +1,19 @@
 import { supabase } from '../../lib/supabase';
-import { IUsersService } from '../types';
+import { IUsersService, User } from '../types';
+
+const mapUser = (profile: any): User => ({
+  id: profile.id,
+  username: profile.username,
+  email: profile.email,
+  role: profile.role,
+  displayName: profile.display_name,
+  avatarUrl: profile.avatar_url,
+  isActive: profile.is_active,
+  lastLoginAt: profile.last_login_at,
+  createdAt: profile.created_at,
+  updatedAt: profile.updated_at
+} as any);
+
 export const usersService: IUsersService = {
   getMe: async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -10,7 +24,7 @@ export const usersService: IUsersService = {
       .eq('id', session.user.id)
       .single();
     if (error) throw error;
-    return profile as any;
+    return mapUser(profile);
   },
   getAll: async (params) => {
     const { page = 1, limit = 20, role, search } = params;
@@ -29,7 +43,7 @@ export const usersService: IUsersService = {
     if (error) throw error;
 
     return {
-      data: data as any[],
+      data: data?.map(mapUser) || [],
       pagination: {
         page: Number(page),
         limit: Number(limit),
@@ -39,29 +53,39 @@ export const usersService: IUsersService = {
     };
   },
   create: async (payload) => {
-    const { email, password, ...metadata } = payload;
+    const { email, password, displayName, role, ...metadata } = payload;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: metadata
+        data: {
+          displayName,
+          ...metadata
+        }
       }
     });
     if (error) throw error;
-    return data.user as any;
+    // Profile is created via trigger
+    return { ...data.user, displayName, role } as any;
   },
   update: async (id, payload) => {
+    const { displayName, avatarUrl, isActive, role, ...userData } = payload;
+    const updatePayload: any = { ...userData };
+    if (displayName !== undefined) updatePayload.display_name = displayName;
+    if (avatarUrl !== undefined) updatePayload.avatar_url = avatarUrl;
+    if (isActive !== undefined) updatePayload.is_active = isActive;
+    if (role !== undefined) updatePayload.role = role;
+
     const { data, error } = await supabase
       .from('profiles')
-      .update(payload)
+      .update(updatePayload)
       .eq('id', id)
       .select()
       .single();
     if (error) throw error;
-    return data as any;
+    return mapUser(data);
   },
   delete: async (id) => {
-    // In Supabase we typically toggle is_active or use an edge function to delete auth user
     const { error } = await supabase
       .from('profiles')
       .update({ is_active: false })

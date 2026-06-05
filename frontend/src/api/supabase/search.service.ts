@@ -1,11 +1,41 @@
 import { supabase } from '../../lib/supabase';
-import { ISearchService } from '../types';
+import { ISearchService, Document } from '../types';
+
+const mapDocument = (doc: any): Document => ({
+  ...doc,
+  id: doc.id,
+  title: doc.title,
+  slug: doc.slug,
+  content: doc.content,
+  excerpt: doc.excerpt,
+  categoryId: doc.category_id,
+  authorId: doc.author_id,
+  osEnv: doc.os_env,
+  status: doc.status,
+  isPinned: doc.is_pinned,
+  viewCount: doc.view_count,
+  createdAt: doc.created_at,
+  updatedAt: doc.updated_at,
+  publishedAt: doc.published_at,
+  category: doc.category ? {
+    ...doc.category,
+    parentId: doc.category.parent_id,
+    sortOrder: doc.category.sort_order
+  } : undefined,
+  author: doc.author ? {
+    id: doc.author.id,
+    username: doc.author.username,
+    displayName: doc.author.display_name,
+    avatarUrl: doc.author.avatar_url
+  } : undefined,
+  tags: doc.tags || [],
+  highlightedExcerpt: doc.excerpt
+});
 
 export const searchService: ISearchService = {
   search: async (params) => {
     const { q, category, tag, page = 1, limit = 20 } = params;
     
-    // Using simple text search for now, could use RPC for full fts
     let query = supabase
       .from('documents')
       .select('*, category:categories(*), author:profiles(id, username, display_name)', { count: 'exact' })
@@ -22,7 +52,7 @@ export const searchService: ISearchService = {
     if (error) throw error;
 
     return {
-      data: (data as any[]).map(d => ({ ...d, highlightedExcerpt: d.excerpt })),
+      data: (data || []).map(mapDocument),
       pagination: {
         page: Number(page),
         limit: Number(limit),
