@@ -1,3 +1,15 @@
+# Recent Fixes and Improvements - June 17, 2026
+
+## 1. Database Resilience & Connectivity
+- **Real-time Status Monitoring:** Added a dynamic "Cluster Status" indicator to the Login Page that verifies backend connectivity (Supabase/Express) on mount.
+- **Improved Connection Error Handling:** Enhanced login error reporting to specifically identify when the database is unreachable or paused.
+- **Supabase Keep-Alive Workflow:** Implemented a new GitHub Action (`supabase-keep-alive.yml`) that pings the Supabase API daily to prevent free-tier projects from pausing due to inactivity.
+- **Documentation:** Updated `GitHub-Hosting.md` with setup instructions for the keep-alive workflow.
+
+## 2. Runbook Saving Reliability
+- **Hardened Tag Synchronization:** Wrapped tag upsert and linking logic in try-catch blocks within the Supabase document service. 
+- **Persistence Guarantee:** Fixed a "Syncing" hang issue where tag-related database errors would prevent the main document save from completing. The system now ensures documents are saved and returned even if secondary tag operations fail.
+
 # Recent Fixes and Improvements - June 6, 2026
 
 ## 1. Bulk Import Improvements

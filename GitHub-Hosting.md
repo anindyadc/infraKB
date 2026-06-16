@@ -80,6 +80,16 @@ You must tell GitHub Pages to serve the compiled application, not your source co
 
 *Note: Ensure your `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are added to your repository's **Secrets and variables -> Actions** so the workflow can bake them into the production build.*
 
+### ⚡ Preventing Supabase Pausing (Free Tier)
+
+Supabase pauses free tier projects after **1 week of inactivity**. To prevent this, the repository includes a "Keep Alive" workflow:
+
+- **Workflow:** `.github/workflows/supabase-keep-alive.yml`
+- **Action:** It automatically pings your Supabase API every day at midnight (UTC).
+- **Requirements:** Ensure `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are added to your GitHub Repository **Secrets** (Settings -> Secrets and variables -> Actions).
+
+*Note: If your project is already paused, you must manually resume it from the Supabase Dashboard before the workflow can take over.*
+
 ### 🔍 Troubleshooting Common Issues
 
 #### "Invalid path" or 404 on login

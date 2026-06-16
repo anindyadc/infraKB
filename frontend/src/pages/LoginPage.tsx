@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,6 +18,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [dbStatus, setDbStatus] = useState<'online' | 'offline' | 'checking'>('checking');
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
 
@@ -29,6 +30,27 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        if (import.meta.env.VITE_BACKEND_TYPE === 'supabase') {
+          // Simple query to check connectivity
+          const { error } = await supabase.from('categories').select('id').limit(1);
+          if (error) throw error;
+        } else {
+          // Express health check
+          await client.get('/stats');
+        }
+        setDbStatus('online');
+      } catch (err) {
+        console.error('DB Status Check Failed:', err);
+        setDbStatus('offline');
+      }
+    };
+
+    checkStatus();
+  }, []);
+
   const onSubmit = async (data: LoginForm) => {
     setLoading(true);
     setError(null);
@@ -38,7 +60,13 @@ export default function LoginPage() {
           email: data.email,
           password: data.password,
         });
-        if (authError) throw authError;
+        
+        if (authError) {
+          if (authError.message.includes('fetch')) {
+            throw new Error('Database is unreachable. It may be paused due to inactivity.');
+          }
+          throw authError;
+        }
         // The store listener in main.tsx/Root will handle the user state
         navigate('/');
       } else {
@@ -203,11 +231,20 @@ export default function LoginPage() {
 
             <div className="pt-8 border-t border-border/40 flex flex-col items-center gap-4">
               <div className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-muted/50 border border-border/50">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+                <span className={`h-2 w-2 rounded-full ${
+                  dbStatus === 'online' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 
+                  dbStatus === 'offline' ? 'bg-destructive shadow-[0_0_8px_rgba(239,68,68,0.6)]' : 
+                  'bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.6)]'
+                }`} />
                 <p className="text-[9px] font-black uppercase tracking-[0.25em] text-muted-foreground/60">
-                  Cluster Status: Online
+                  Cluster Status: {dbStatus === 'online' ? 'Online' : dbStatus === 'offline' ? 'Offline' : 'Verifying...'}
                 </p>
               </div>
+              {dbStatus === 'offline' && (
+                <p className="text-[9px] text-destructive font-bold uppercase tracking-widest text-center px-4 animate-pulse">
+                  System Paused / Connection Failed
+                </p>
+              )}
             </div>
           </div>
 

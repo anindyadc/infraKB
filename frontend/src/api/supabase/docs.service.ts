@@ -125,17 +125,33 @@ export const docsService: IDocsService = {
 
     // Handle tags in parallel
     if (tags && tags.length > 0) {
-       await Promise.all(tags.map(async (tagName: string) => {
-         const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-         const { data: tagData } = await supabase
-           .from('tags')
-           .upsert({ name: tagName, slug: tagSlug }, { onConflict: 'slug' })
-           .select()
-           .single();
-         if (tagData) {
-           await supabase.from('doc_tags').upsert({ doc_id: data.id, tag_id: tagData.id }, { onConflict: 'doc_id,tag_id' });
-         }
-       }));
+      try {
+        await Promise.all(tags.map(async (tagName: string) => {
+          const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          const { data: tagData, error: tagUpsertError } = await supabase
+            .from('tags')
+            .upsert({ name: tagName, slug: tagSlug }, { onConflict: 'slug' })
+            .select()
+            .single();
+          
+          if (tagUpsertError) {
+            console.error('Tag upsert error:', tagUpsertError);
+            return;
+          }
+
+          if (tagData) {
+            const { error: linkError } = await supabase
+              .from('doc_tags')
+              .upsert({ doc_id: data.id, tag_id: tagData.id }, { onConflict: 'doc_id,tag_id' });
+            
+            if (linkError) {
+              console.error('Doc-Tag link error:', linkError);
+            }
+          }
+        }));
+      } catch (tagErr) {
+        console.error('Tag processing failed, but document was created:', tagErr);
+      }
     }
 
     return mapDocument(data);
@@ -167,20 +183,37 @@ export const docsService: IDocsService = {
 
     // Handle tags
     if (tags !== undefined) {
-      // For simplicity in RLS environment, we delete and re-add or use upsert
-      await supabase.from('doc_tags').delete().eq('doc_id', id);
-      if (tags.length > 0) {
-        await Promise.all(tags.map(async (tagName: string) => {
-          const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-          const { data: tagData } = await supabase
-            .from('tags')
-            .upsert({ name: tagName, slug: tagSlug }, { onConflict: 'slug' })
-            .select()
-            .single();
-          if (tagData) {
-            await supabase.from('doc_tags').upsert({ doc_id: id, tag_id: tagData.id }, { onConflict: 'doc_id,tag_id' });
-          }
-        }));
+      try {
+        // For simplicity in RLS environment, we delete and re-add or use upsert
+        await supabase.from('doc_tags').delete().eq('doc_id', id);
+        
+        if (tags.length > 0) {
+          await Promise.all(tags.map(async (tagName: string) => {
+            const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            const { data: tagData, error: tagUpsertError } = await supabase
+              .from('tags')
+              .upsert({ name: tagName, slug: tagSlug }, { onConflict: 'slug' })
+              .select()
+              .single();
+            
+            if (tagUpsertError) {
+              console.error('Tag update upsert error:', tagUpsertError);
+              return;
+            }
+
+            if (tagData) {
+              const { error: linkError } = await supabase
+                .from('doc_tags')
+                .upsert({ doc_id: id, tag_id: tagData.id }, { onConflict: 'doc_id,tag_id' });
+              
+              if (linkError) {
+                console.error('Doc-Tag update link error:', linkError);
+              }
+            }
+          }));
+        }
+      } catch (tagErr) {
+        console.error('Tag update processing failed, but document was updated:', tagErr);
       }
     }
 
