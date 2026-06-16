@@ -8,7 +8,11 @@
 
 ## 2. Runbook Saving Reliability
 - **Hardened Tag Synchronization:** Wrapped tag upsert and linking logic in try-catch blocks within the Supabase document service. 
-- **Persistence Guarantee:** Fixed a "Syncing" hang issue where tag-related database errors would prevent the main document save from completing. The system now ensures documents are saved and returned even if secondary tag operations fail.
+- **Persistence Guarantee:** Fixed a "Syncing" hang issue where tag-related database errors would prevent the main document save from completing.
+- **Safety Timeouts:** Implemented 15-second timeouts for all document save/update operations to prevent the UI from getting stuck in an indefinite "Syncing" state during connection failures.
+
+## 3. Session Management
+- **Robust Logout:** Fixed the logout button to ensure it always clears local state and redirects to the login page, even if the Supabase `signOut` call hangs or fails due to network issues. Added a safety timeout to remote sign-out requests.
 
 # Recent Fixes and Improvements - June 6, 2026
 

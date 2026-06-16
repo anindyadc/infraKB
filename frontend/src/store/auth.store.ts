@@ -33,12 +33,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   setAccessToken: (accessToken) => set({ accessToken }),
   setInitializing: (isInitializing) => set({ isInitializing }),
   logout: async () => {
-    if (backendType === 'supabase') {
-      await supabase.auth.signOut();
-    } else {
-      await client.post('/auth/logout').catch(() => {});
+    try {
+      if (backendType === 'supabase') {
+        // Attempt to sign out from Supabase with a local-only fallback if it hangs
+        await Promise.race([
+          supabase.auth.signOut(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Sign out timeout')), 2000))
+        ]).catch(err => console.warn('Supabase signout issue:', err));
+      } else {
+        await client.post('/auth/logout').catch(() => {});
+      }
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      // ALWAYS clear local state regardless of server response
+      set({ user: null, accessToken: null, isAuthenticated: false, isInitializing: false });
+      // Force reload to clear any residual memory state if necessary
+      window.location.href = '/login';
     }
-    set({ user: null, accessToken: null, isAuthenticated: false, isInitializing: false });
   },
   initialize: async () => {
     set({ isInitializing: true });

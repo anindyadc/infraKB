@@ -93,131 +93,161 @@ export const docsService: IDocsService = {
     return mapDocument(data);
   },
   create: async (payload) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Unauthorized');
-
-    const { tags, categoryId, ...docData } = payload as any;
+    console.log('DocsService: Starting document creation...', payload.title);
     
-    const baseSlug = docData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-    const uniqueSlug = `${baseSlug}-${Math.floor(Math.random() * 10000)}`;
+    // Safety timeout for the entire operation
+    const timeout = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(new Error('DATABASE_TIMEOUT')), ms));
 
-    const insertPayload: any = { 
-      title: docData.title,
-      content: docData.content,
-      status: docData.status || 'PUBLISHED',
-      os_env: docData.osEnv,
-      is_pinned: docData.isPinned || false,
-      slug: uniqueSlug, 
-      author_id: user.id 
-    };
+    try {
+      return await Promise.race([
+        (async () => {
+          const { data: authData, error: authError } = await supabase.auth.getUser();
+          if (authError) throw authError;
+          
+          const user = authData.user;
+          if (!user) throw new Error('UNAUTHORIZED');
 
-    if (categoryId !== undefined && categoryId !== 0 && categoryId !== null) {
-      insertPayload.category_id = categoryId;
-    }
+          const { tags, categoryId, ...docData } = payload as any;
+          
+          const baseSlug = docData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+          const uniqueSlug = `${baseSlug}-${Math.floor(Math.random() * 10000)}`;
 
-    const { data, error } = await supabase
-      .from('documents')
-      .insert(insertPayload)
-      .select()
-      .single();
+          const insertPayload: any = { 
+            title: docData.title,
+            content: docData.content,
+            status: docData.status || 'PUBLISHED',
+            os_env: docData.osEnv,
+            is_pinned: docData.isPinned || false,
+            slug: uniqueSlug, 
+            author_id: user.id 
+          };
 
-    if (error) throw error;
+          if (categoryId !== undefined && categoryId !== 0 && categoryId !== null) {
+            insertPayload.category_id = categoryId;
+          }
 
-    // Handle tags in parallel
-    if (tags && tags.length > 0) {
-      try {
-        await Promise.all(tags.map(async (tagName: string) => {
-          const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-          const { data: tagData, error: tagUpsertError } = await supabase
-            .from('tags')
-            .upsert({ name: tagName, slug: tagSlug }, { onConflict: 'slug' })
+          console.log('DocsService: Inserting document into DB...');
+          const { data, error } = await supabase
+            .from('documents')
+            .insert(insertPayload)
             .select()
             .single();
-          
-          if (tagUpsertError) {
-            console.error('Tag upsert error:', tagUpsertError);
-            return;
-          }
 
-          if (tagData) {
-            const { error: linkError } = await supabase
-              .from('doc_tags')
-              .upsert({ doc_id: data.id, tag_id: tagData.id }, { onConflict: 'doc_id,tag_id' });
-            
-            if (linkError) {
-              console.error('Doc-Tag link error:', linkError);
+          if (error) throw error;
+          console.log('DocsService: Document inserted successfully, ID:', data.id);
+
+          // Handle tags in parallel - non-blocking for the main document return
+          if (tags && tags.length > 0) {
+            console.log('DocsService: Processing tags:', tags);
+            // We don't await this Promise.all if we want to be ultra-resilient, 
+            // but for now let's keep it awaited but try-catched inside.
+            try {
+              await Promise.all(tags.map(async (tagName: string) => {
+                const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                const { data: tagData, error: tagUpsertError } = await supabase
+                  .from('tags')
+                  .upsert({ name: tagName, slug: tagSlug }, { onConflict: 'slug' })
+                  .select()
+                  .single();
+                
+                if (tagUpsertError) {
+                  console.error('Tag upsert error:', tagUpsertError);
+                  return;
+                }
+
+                if (tagData) {
+                  await supabase.from('doc_tags').upsert({ doc_id: data.id, tag_id: tagData.id }, { onConflict: 'doc_id,tag_id' });
+                }
+              }));
+            } catch (tagErr) {
+              console.error('Tag processing failed, but document was created:', tagErr);
             }
           }
-        }));
-      } catch (tagErr) {
-        console.error('Tag processing failed, but document was created:', tagErr);
-      }
-    }
 
-    return mapDocument(data);
+          console.log('DocsService: Creation complete.');
+          return mapDocument(data);
+        })(),
+        timeout(15000) // 15 second timeout
+      ]) as Document;
+    } catch (err: any) {
+      console.error('DocsService: Save failed:', err);
+      if (err.message === 'DATABASE_TIMEOUT') {
+        throw new Error('Connection timeout. The database might be waking up or unreachable. Please try again in a few seconds.');
+      }
+      throw err;
+    }
   },
   update: async (id, payload) => {
-    const { tags, changeSummary, categoryId, ...docData } = payload as any;
-    
-    const updatePayload: any = {};
-    if (docData.title !== undefined) updatePayload.title = docData.title;
-    if (docData.content !== undefined) updatePayload.content = docData.content;
-    if (docData.status !== undefined) updatePayload.status = docData.status;
-    if (docData.osEnv !== undefined) updatePayload.os_env = docData.osEnv;
-    if (docData.isPinned !== undefined) updatePayload.is_pinned = docData.isPinned;
-    
-    if (categoryId !== undefined) {
-      updatePayload.category_id = (categoryId === 0 || categoryId === null) ? null : categoryId;
-    }
-    
-    updatePayload.updated_at = new Date().toISOString();
+    console.log('DocsService: Updating document:', id);
+    const timeout = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(new Error('DATABASE_TIMEOUT')), ms));
 
-    const { data, error } = await supabase
-      .from('documents')
-      .update(updatePayload)
-      .eq('id', id)
-      .select()
-      .single();
+    try {
+      return await Promise.race([
+        (async () => {
+          const { tags, changeSummary, categoryId, ...docData } = payload as any;
+          
+          const updatePayload: any = {};
+          if (docData.title !== undefined) updatePayload.title = docData.title;
+          if (docData.content !== undefined) updatePayload.content = docData.content;
+          if (docData.status !== undefined) updatePayload.status = docData.status;
+          if (docData.osEnv !== undefined) updatePayload.os_env = docData.osEnv;
+          if (docData.isPinned !== undefined) updatePayload.is_pinned = docData.isPinned;
+          
+          if (categoryId !== undefined) {
+            updatePayload.category_id = (categoryId === 0 || categoryId === null) ? null : categoryId;
+          }
+          
+          updatePayload.updated_at = new Date().toISOString();
 
-    if (error) throw error;
+          const { data, error } = await supabase
+            .from('documents')
+            .update(updatePayload)
+            .eq('id', id)
+            .select()
+            .single();
 
-    // Handle tags
-    if (tags !== undefined) {
-      try {
-        // For simplicity in RLS environment, we delete and re-add or use upsert
-        await supabase.from('doc_tags').delete().eq('doc_id', id);
-        
-        if (tags.length > 0) {
-          await Promise.all(tags.map(async (tagName: string) => {
-            const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-            const { data: tagData, error: tagUpsertError } = await supabase
-              .from('tags')
-              .upsert({ name: tagName, slug: tagSlug }, { onConflict: 'slug' })
-              .select()
-              .single();
-            
-            if (tagUpsertError) {
-              console.error('Tag update upsert error:', tagUpsertError);
-              return;
-            }
+          if (error) throw error;
 
-            if (tagData) {
-              const { error: linkError } = await supabase
-                .from('doc_tags')
-                .upsert({ doc_id: id, tag_id: tagData.id }, { onConflict: 'doc_id,tag_id' });
-              
-              if (linkError) {
-                console.error('Doc-Tag update link error:', linkError);
+          // Handle tags
+          if (tags !== undefined) {
+            try {
+              await supabase.from('doc_tags').delete().eq('doc_id', id);
+              if (tags.length > 0) {
+                await Promise.all(tags.map(async (tagName: string) => {
+                  const tagSlug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                  const { data: tagData, error: tagUpsertError } = await supabase
+                    .from('tags')
+                    .upsert({ name: tagName, slug: tagSlug }, { onConflict: 'slug' })
+                    .select()
+                    .single();
+                  
+                  if (tagUpsertError) {
+                    console.error('Tag update upsert error:', tagUpsertError);
+                    return;
+                  }
+
+                  if (tagData) {
+                    await supabase.from('doc_tags').upsert({ doc_id: id, tag_id: tagData.id }, { onConflict: 'doc_id,tag_id' });
+                  }
+                }));
               }
+            } catch (tagErr) {
+              console.error('Tag update processing failed, but document was updated:', tagErr);
             }
-          }));
-        }
-      } catch (tagErr) {
-        console.error('Tag update processing failed, but document was updated:', tagErr);
-      }
-    }
+          }
 
-    return mapDocument(data);
+          console.log('DocsService: Update complete.');
+          return mapDocument(data);
+        })(),
+        timeout(15000)
+      ]) as Document;
+    } catch (err: any) {
+      console.error('DocsService: Update failed:', err);
+      if (err.message === 'DATABASE_TIMEOUT') {
+        throw new Error('Connection timeout. Please try again.');
+      }
+      throw err;
+    }
   },
   delete: async (id) => {
     const { error } = await supabase.rpc('delete_document', { target_doc_id: id });
