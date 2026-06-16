@@ -49,7 +49,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // ALWAYS clear local state regardless of server response
       set({ user: null, accessToken: null, isAuthenticated: false, isInitializing: false });
       // Force reload to clear any residual memory state if necessary
-      window.location.href = '/login';
+      // Use BASE_URL to ensure it works on GitHub Pages subfolders
+      const baseUrl = import.meta.env.BASE_URL || '/';
+      window.location.href = baseUrl + 'login';
     }
   },
   initialize: async () => {

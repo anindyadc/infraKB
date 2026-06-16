@@ -11,8 +11,10 @@
 - **Persistence Guarantee:** Fixed a "Syncing" hang issue where tag-related database errors would prevent the main document save from completing.
 - **Safety Timeouts:** Implemented 15-second timeouts for all document save/update operations to prevent the UI from getting stuck in an indefinite "Syncing" state during connection failures.
 
-## 3. Session Management
+## 3. Session Management & Deployment
 - **Robust Logout:** Fixed the logout button to ensure it always clears local state and redirects to the login page, even if the Supabase `signOut` call hangs or fails due to network issues. Added a safety timeout to remote sign-out requests.
+- **GitHub Pages Subfolder Fix:** Corrected the logout redirect to respect the `BASE_URL`, preventing 404 errors when hosted in subfolders (e.g., `/infraKB/`).
+- **SPA Routing Support:** Implemented a `404.html` redirection hack and corresponding `index.html` logic to support direct deep-linking and page refreshes on GitHub Pages.
 
 # Recent Fixes and Improvements - June 6, 2026
 
