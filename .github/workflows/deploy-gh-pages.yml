@@ -17,6 +17,7 @@ jobs:
         working-directory: frontend
         run: |
           npm install --legacy-peer-deps
+          npm run typecheck
           npm run build
         env:
           VITE_BACKEND_TYPE: supabase

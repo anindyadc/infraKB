@@ -17,6 +17,10 @@
 - **SPA Routing Support:** Implemented a `404.html` redirection hack and corresponding `index.html` logic to support direct deep-linking and page refreshes on GitHub Pages.
 - **Redirect Loop Fix:** Eliminated a "flashing" login screen issue by consolidating authentication initialization and removing redundant bootstrap checks that caused race conditions between the dashboard and login page.
 
+## 4. Build Pipeline Optimization
+- **Decoupled Type-Checking:** Separated TypeScript type-checking (`npm run typecheck`) from the Vite build process to eliminate redundant compilation steps.
+- **CI/CD Efficiency:** Updated the GitHub Actions workflow to run type-checking and building as sequential steps, ensuring deployment speed without sacrificing type safety.
+
 # Recent Fixes and Improvements - June 6, 2026
 
 ## 1. Bulk Import Improvements
