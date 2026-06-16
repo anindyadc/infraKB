@@ -15,6 +15,7 @@
 - **Robust Logout:** Fixed the logout button to ensure it always clears local state and redirects to the login page, even if the Supabase `signOut` call hangs or fails due to network issues. Added a safety timeout to remote sign-out requests.
 - **GitHub Pages Subfolder Fix:** Corrected the logout redirect to respect the `BASE_URL`, preventing 404 errors when hosted in subfolders (e.g., `/infraKB/`).
 - **SPA Routing Support:** Implemented a `404.html` redirection hack and corresponding `index.html` logic to support direct deep-linking and page refreshes on GitHub Pages.
+- **Redirect Loop Fix:** Eliminated a "flashing" login screen issue by consolidating authentication initialization and removing redundant bootstrap checks that caused race conditions between the dashboard and login page.
 
 # Recent Fixes and Improvements - June 6, 2026
 

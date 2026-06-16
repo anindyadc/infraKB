@@ -18,7 +18,7 @@ interface AuthState {
   setAuth: (user: User, accessToken: string | null) => void;
   setAccessToken: (accessToken: string) => void;
   setInitializing: (initializing: boolean) => void;
-  logout: () => Promise<void>;
+  logout: (hardRedirect?: boolean) => Promise<void>;
   initialize: () => Promise<void>;
 }
 
@@ -32,13 +32,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   setAuth: (user, accessToken) => set({ user, accessToken, isAuthenticated: true, isInitializing: false }),
   setAccessToken: (accessToken) => set({ accessToken }),
   setInitializing: (isInitializing) => set({ isInitializing }),
-  logout: async () => {
+  logout: async (hardRedirect = false) => {
     try {
       if (backendType === 'supabase') {
-        // Attempt to sign out from Supabase with a local-only fallback if it hangs
         await Promise.race([
           supabase.auth.signOut(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Sign out timeout')), 2000))
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Sign out timeout')), 1500))
         ]).catch(err => console.warn('Supabase signout issue:', err));
       } else {
         await client.post('/auth/logout').catch(() => {});
@@ -46,12 +45,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
-      // ALWAYS clear local state regardless of server response
       set({ user: null, accessToken: null, isAuthenticated: false, isInitializing: false });
-      // Force reload to clear any residual memory state if necessary
-      // Use BASE_URL to ensure it works on GitHub Pages subfolders
-      const baseUrl = import.meta.env.BASE_URL || '/';
-      window.location.href = baseUrl + 'login';
+      
+      if (hardRedirect) {
+        const baseUrl = import.meta.env.BASE_URL || '/';
+        window.location.href = baseUrl + 'login';
+      }
     }
   },
   initialize: async () => {

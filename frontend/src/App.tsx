@@ -27,7 +27,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   const theme = useUIStore((state) => state.theme);
-  const { setAuth, setInitializing, logout } = useAuthStore();
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -42,23 +41,6 @@ function App() {
       root.classList.add(theme);
     }
   }, [theme]);
-
-  // Initial Auth Check
-  useEffect(() => {
-    const bootstrap = async () => {
-      try {
-        const user = await getMe();
-        // If successful, the interceptor might have already updated the accessToken in the store
-        // but we need to ensure isAuthenticated is true
-        setAuth(user, useAuthStore.getState().accessToken || '');
-      } catch (err) {
-        logout();
-      } finally {
-        setInitializing(false);
-      }
-    };
-    bootstrap();
-  }, []);
 
   // Global Code Copy Handler
   useEffect(() => {
