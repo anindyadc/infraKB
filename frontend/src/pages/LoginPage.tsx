@@ -254,7 +254,7 @@ export default function LoginPage() {
         </div>
         
         <p className="mt-12 text-center text-[10px] text-muted-foreground/40 font-black uppercase tracking-[0.4em]">
-          Internal Knowledge Network — v1.0.4
+          Internal Knowledge Network — v1.0.5 [Build: 2026-06-17-V2]
         </p>
       </div>
     </div>

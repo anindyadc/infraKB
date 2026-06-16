@@ -7,6 +7,8 @@ import { useAuthStore } from './store/auth.store'
 
 const queryClient = new QueryClient()
 
+console.log('InfraKB Initializing... Build: 2026-06-17-V2');
+
 function Root() {
   const initialize = useAuthStore(state => state.initialize);
   const isInitializing = useAuthStore(state => state.isInitializing);

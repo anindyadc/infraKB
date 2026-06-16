@@ -153,6 +153,11 @@ export default function Sidebar() {
             <LogOut className="h-4 w-4" />
           </button>
         </div>
+        <div className="mt-4 text-center">
+          <p className="text-[8px] font-black uppercase tracking-[0.4em] text-muted-foreground/20">
+            Build: 2026-06-17-V2
+          </p>
+        </div>
       </div>
     </div>
   );

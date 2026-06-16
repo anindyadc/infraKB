@@ -46,6 +46,7 @@ export default function NewDocPage() {
   });
 
   const handleSave = () => {
+    console.log('NewDocPage: Initiating Save Protocol...', { title, categoryId, tags });
     mutation.mutate({ 
       title, 
       content, 

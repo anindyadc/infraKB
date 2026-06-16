@@ -52,6 +52,7 @@ const mutation = useMutation({
   });
 
   const handleSave = () => {
+    console.log('DocEditPage: Initiating Commit Protocol...', { title, categoryId, tags });
     mutation.mutate({ 
       title, 
       content,

@@ -1,5 +1,7 @@
 import client from '../client';
-import { IDocsService } from '../types';
+import { IDocsService, Document } from '../types';
+
+const timeout = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(new Error('DATABASE_TIMEOUT')), ms));
 
 export const docsService: IDocsService = {
   getAll: async (params) => {
@@ -11,12 +13,30 @@ export const docsService: IDocsService = {
     return data.data;
   },
   create: async (payload) => {
-    const { data } = await client.post('/docs', payload);
-    return data.data;
+    console.log('ExpressDocs: Creating document...', payload.title);
+    try {
+      const response = await Promise.race([
+        client.post('/docs', payload),
+        timeout(15000)
+      ]) as any;
+      return response.data.data;
+    } catch (err: any) {
+      console.error('ExpressDocs: Save failed:', err);
+      throw err;
+    }
   },
   update: async (id, payload) => {
-    const { data } = await client.put(`/docs/${id}`, payload);
-    return data.data;
+    console.log('ExpressDocs: Updating document...', id);
+    try {
+      const response = await Promise.race([
+        client.put(`/docs/${id}`, payload),
+        timeout(15000)
+      ]) as any;
+      return response.data.data;
+    } catch (err: any) {
+      console.error('ExpressDocs: Update failed:', err);
+      throw err;
+    }
   },
   delete: async (id) => {
     const { data } = await client.delete(`/docs/${id}`);
