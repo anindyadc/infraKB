@@ -1,26 +1,27 @@
-name: Docker CI/CD
+name: Backend CI/CD
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ main, master ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ main, master ]
+    paths:
+      - 'backend/**'
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository }}-backend
 
 jobs:
-  build-and-push:
+  publish-docker:
+    name: Publish Backend Docker Image
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
-    strategy:
-      matrix:
-        component: [backend, frontend]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -32,17 +33,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.component }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./${{ matrix.component }}
-          file: ./${{ matrix.component }}/Dockerfile.prod
+          context: ./backend
+          file: ./backend/Dockerfile.prod
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

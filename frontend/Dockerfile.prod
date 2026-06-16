@@ -1,3 +1,6 @@
+# ── BUILD STAGE ──────────────────────────────────────────
+# This stage is used for local development. In CI/CD, we skip this
+# and copy the pre-built 'dist' folder directly.
 FROM node:20-slim AS builder
 WORKDIR /app
 COPY package*.json ./
@@ -5,8 +8,14 @@ RUN npm install --legacy-peer-deps
 COPY . .
 RUN npm run build
 
+# ── PRODUCTION STAGE ──────────────────────────────────────
 FROM nginx:alpine
+# In CI, we set BUILD_STAGE=nginx to copy from the context instead of the builder stage
+ARG BUILD_CONTEXT=.
 COPY --from=builder /app/dist /usr/share/nginx/html
+# If using pre-built assets, we can override the copy command in the workflow
+# but the standard COPY from builder works fine for local.
+
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

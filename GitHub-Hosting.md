@@ -4,11 +4,15 @@ InfraKB can be easily hosted and deployed using GitHub's built-in tools. This gu
 
 ## 🚀 Automated CI/CD with GitHub Actions
 
-The project includes a GitHub Actions workflow located at `.github/workflows/docker-publish.yml`. This workflow automatically:
+The project includes component-based GitHub Actions workflows:
+- **Frontend CI/CD:** `.github/workflows/frontend.yml` (Builds, Deploys to Pages, and Publishes Docker image).
+- **Backend CI/CD:** `.github/workflows/backend.yml` (Publishes Backend Docker image).
 
-1.  **Triggers** on every push to the `master` or `main` branch.
-2.  **Builds** both the Frontend and Backend production Docker images.
-3.  **Publishes** the images to the **GitHub Container Registry (GHCR)**.
+These workflows automatically:
+
+1.  **Trigger** based on changes to their respective directories (`frontend/` or `backend/`).
+2.  **Build** and verify (Typecheck) the code.
+3.  **Publish** the images to the **GitHub Container Registry (GHCR)**.
 
 ### Setup Instructions
 
@@ -58,27 +62,24 @@ To ensure the best experience on GitHub:
 
 ### 🌐 Deploying Frontend to GitHub Pages (Supabase Mode)
 
-Thanks to the Dual-Backend Strategy, if you are using **Supabase**, you can host the React frontend entirely for free on GitHub Pages. The repository includes an automated workflow (`.github/workflows/deploy-gh-pages.yml`) for this purpose.
+Thanks to the Dual-Backend Strategy, if you are using **Supabase**, you can host the React frontend entirely for free on GitHub Pages. The repository includes an automated workflow (`.github/workflows/frontend.yml`) for this purpose.
 
 **Mandatory Repository Configuration:**
-For the automated deployment to succeed and display correctly, you must configure two settings in your GitHub repository:
+For the automated deployment to succeed, you must update your GitHub repository settings:
 
-#### 1. Grant Workflow Permissions
-By default, GitHub restricts workflows from pushing code. You must allow it to write to the `gh-pages` branch.
+#### 1. Configure Pages Source
+You must tell GitHub to use Actions for deployment rather than a branch.
 1. Go to your repository on GitHub -> **Settings**.
-2. Scroll down the left sidebar to **Actions** -> **General**.
-3. Under **Workflow permissions**, select **Read and write permissions**.
-4. Click **Save**.
+2. Scroll down the left sidebar to **Pages**.
+3. Under **Build and deployment**, set **Source** to **GitHub Actions**.
 
-#### 2. Configure Pages Source
-You must tell GitHub Pages to serve the compiled application, not your source code.
-1. Go to **Settings** -> **Pages**.
-2. Under **Build and deployment**, ensure **Source** is set to **Deploy from a branch**.
-3. Under **Branch**, select the **`gh-pages`** branch (not `main`).
-4. Ensure the folder is set to **`/(root)`**.
-5. Click **Save**.
+#### 2. Grant Workflow Permissions
+Ensure the workflow can create the deployment.
+1. Go to **Settings** -> **Actions** -> **General**.
+2. Under **Workflow permissions**, select **Read and write permissions**.
+3. Click **Save**.
 
-*Note: Ensure your `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are added to your repository's **Secrets and variables -> Actions** so the workflow can bake them into the production build.*
+*Note: The older `gh-pages` branch is no longer used. Deployment happens directly from the `frontend.yml` workflow using the `actions/deploy-pages` action.*
 
 ### ⚡ Preventing Supabase Pausing (Free Tier)
 

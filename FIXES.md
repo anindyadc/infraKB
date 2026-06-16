@@ -20,6 +20,10 @@
 ## 4. Build Pipeline Optimization
 - **Decoupled Type-Checking:** Separated TypeScript type-checking (`npm run typecheck`) from the Vite build process to eliminate redundant compilation steps.
 - **CI/CD Efficiency:** Updated the GitHub Actions workflow to run type-checking and building as sequential steps, ensuring deployment speed without sacrificing type safety.
+- **Unified Frontend CI/CD:** Consolidated frontend deployment and Docker publishing into a single workflow (`frontend.yml`) that builds the project exactly once and shares the `dist` artifact.
+- **Component-Level Path Filters:** Implemented granular path filters so that backend changes only trigger backend Docker builds, and frontend changes only trigger frontend-related tasks.
+- **Modern Pages Deployment:** Migrated to direct GitHub Actions deployment for Pages, eliminating the redundant `gh-pages` branch and the secondary `pages-build-deployment` workflow run.
+- **Optimized Docker Builds:** Created `Dockerfile.gha` for the frontend to allow instant Docker image creation from pre-built assets, bypassing redundant node dependency installation and compilation inside the container.
 
 # Recent Fixes and Improvements - June 6, 2026
 
